@@ -91,8 +91,8 @@
                 </div>
             </div>
             <div class="lg:col-span-7">
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <div class="reveal-clip img-zoom frame-corner relative aspect-[4/5] overflow-hidden rounded-xl sm:row-span-2"><x-photo name="team-event" alt="Fortress protection officers standing together in uniform" sizes="(min-width: 1024px) 30vw, 50vw" /><div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy-950/90 to-transparent p-5"><p class="font-display text-lg font-bold uppercase">One team. One standard.</p><p class="text-xs text-blue-100/80">Protection officers, drivers and response crews trained by senior Fortress officers.</p></div></div>
+                <div class="grid gap-4 sm:grid-cols-2 sm:grid-rows-3">
+                    <div class="reveal-clip img-zoom frame-corner relative aspect-[4/5] overflow-hidden rounded-xl sm:aspect-auto sm:row-span-3 sm:h-full sm:min-h-[480px]"><x-photo name="team-event" alt="Fortress protection officers standing together in uniform" sizes="(min-width: 1024px) 30vw, 50vw" /><div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy-950/90 to-transparent p-5"><p class="font-display text-lg font-bold uppercase">One team. One standard.</p><p class="text-xs text-blue-100/80">Protection officers, drivers and response crews trained by senior Fortress officers.</p></div></div>
                     @foreach(fortress('commitments') as $c)
                         <div class="rounded-xl border border-white/10 bg-white/5 p-6 transition hover:bg-white/10" data-reveal style="--d:{{ 120 + $loop->index * 100 }}ms"><span class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-blue-500/20 text-blue-300"><x-icon name="check" class="h-4 w-4" /></span><h3 class="h3 mt-3 text-white">{{ $c['title'] }}</h3><p class="mt-2 text-sm text-blue-100/80">{{ $c['body'] }}</p></div>
                     @endforeach
