@@ -8,7 +8,9 @@ A Laravel 13 rebuild of [fortress.tt](https://www.fortress.tt) with a careers pa
 
 **Imagery & motion** – 14 licensed Shutterstock photos (WebP, two sizes) and a looping control-room video in the hero, a CSS radar "live monitoring" mograph, kinetic headline, scroll-reveal, count-up stats and a credentials marquee, all respecting `prefers-reduced-motion`.
 
-**Recruitment back office** (`/admin`) – dashboard with 14-day application chart and pipeline counts, job posting editor (draft/open/paused/closed, closing dates, urgent flag, duplicate), applicant list with filters and CSV export, drag-and-drop hiring pipeline, applicant profile with rating, recruiter assignment, interview scheduling, notes timeline, one-click templated emails that can advance the stage, secure CV download, quote-enquiry CRM, email templates, site settings, services editor, users with admin/recruiter roles.
+**Applicant portal** (`/portal`) – applicants register with the email they applied with (existing applications are linked automatically), track each application from Sent → In review → Interview → Decision, book an interview from slots the admin publishes or see the date the admin set, keep a CV on their profile, and receive email plus in-portal notifications at every step.
+
+**Recruitment back office** (`/admin`) – dashboard with 14-day application chart and pipeline counts, job posting editor (draft/open/paused/closed, closing dates, urgent flag, duplicate), applicant list with filters and CSV export, drag-and-drop hiring pipeline, interview slots and schedule (`/admin/interviews`), accept / reject / interview decisions that notify the applicant, applicant profile with rating, recruiter assignment, interview scheduling, notes timeline, one-click templated emails that can advance the stage, secure CV download, quote-enquiry CRM, email templates, site settings, services editor, users with admin/recruiter roles.
 
 ## Local development
 

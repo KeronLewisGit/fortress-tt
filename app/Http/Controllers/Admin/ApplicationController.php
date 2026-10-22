@@ -8,6 +8,7 @@ use App\Models\Application;
 use App\Models\JobPosting;
 use App\Models\MessageTemplate;
 use App\Models\User;
+use App\Services\ApplicantNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -16,6 +17,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ApplicationController extends Controller
 {
+    public function __construct(private ApplicantNotifier $notifier) {}
+
     public function index(Request $request)
     {
         $apps = $this->filtered($request)->with(['job', 'assignee'])->latest()->paginate(25)->withQueryString();
@@ -41,7 +44,7 @@ class ApplicationController extends Controller
 
     public function show(Application $application)
     {
-        $application->load(['job', 'assignee', 'notes.user']);
+        $application->load(['job', 'assignee', 'notes.user', 'applicant', 'interviewSlot']);
 
         return view('admin.applications.show', [
             'application' => $application,
@@ -59,6 +62,7 @@ class ApplicationController extends Controller
             'rating' => ['nullable', 'integer', 'min:0', 'max:5'],
             'assigned_to' => ['nullable', 'exists:users,id'],
             'interview_at' => ['nullable', 'date'],
+            'interview_location' => ['nullable', 'string', 'max:255'],
             'job_posting_id' => ['nullable', 'exists:job_postings,id'],
             'comment' => ['nullable', 'string', 'max:2000'],
         ]);
@@ -72,11 +76,17 @@ class ApplicationController extends Controller
         if ($request->has('job_posting_id')) {
             $application->job_posting_id = $data['job_posting_id'] ?: null;
         }
+        $interviewChanged = false;
         if ($request->has('interview_at')) {
             $application->interview_at = $data['interview_at'] ?: null;
+            if ($request->has('interview_location')) {
+                $application->interview_location = $data['interview_location'] ?: null;
+            }
             if ($application->isDirty('interview_at')) {
+                $interviewChanged = true;
+                $application->interview_slot_id = null; // a manually set date supersedes any booked slot
                 $application->notes()->create(['user_id' => $request->user()->id, 'type' => 'interview', 'body' => $application->interview_at
-                    ? 'Interview scheduled for '.$application->interview_at->format('D j M Y, g:i a')
+                    ? 'Interview scheduled for '.$application->interview_at->format('D j M Y, g:i a').($application->interview_location ? ' at '.$application->interview_location : '')
                     : 'Interview date cleared']);
             }
         }
@@ -84,6 +94,9 @@ class ApplicationController extends Controller
 
         if (! empty($data['status'])) {
             $application->moveTo($data['status'], $request->user(), $data['comment'] ?? null);
+        }
+        if ($interviewChanged) {
+            $application->interview_at ? $this->notifier->interviewScheduled($application) : $this->notifier->interviewCleared($application);
         }
 
         if ($request->expectsJson()) {
@@ -120,6 +133,7 @@ class ApplicationController extends Controller
         }
 
         $application->notes()->create(['user_id' => $request->user()->id, 'type' => 'email', 'body' => $body, 'meta' => ['subject' => $subject]]);
+        $this->notifier->messageSent($application, $subject, $body);
         if (! empty($data['set_status'])) {
             $application->moveTo($data['set_status'], $request->user(), 'after sending “'.$subject.'”');
         }

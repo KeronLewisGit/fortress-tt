@@ -45,7 +45,8 @@
             </div>
             <div class="flex items-center gap-4">
                 @if($openJobs)<a href="{{ route('careers') }}" class="hidden items-center gap-1.5 text-amber-400 hover:text-amber-500 md:inline-flex"><x-icon name="briefcase" class="h-3.5 w-3.5" />We're hiring – {{ $openJobs }} open {{ Str::plural('role', $openJobs) }}</a>@endif
-                <a href="{{ route('track') }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 hover:text-white"><x-icon name="map-pin" class="h-3.5 w-3.5" />Track your vehicle</a>
+                <a href="{{ route('track') }}" target="_blank" rel="noopener" class="hidden items-center gap-1.5 hover:text-white sm:inline-flex"><x-icon name="map-pin" class="h-3.5 w-3.5" />Track your vehicle</a>
+                <a href="{{ auth('applicant')->check() ? route('portal.dashboard') : route('portal.login') }}" class="inline-flex items-center gap-1.5 font-semibold text-white hover:text-blue-300"><x-icon name="id" class="h-3.5 w-3.5" />{{ auth('applicant')->check() ? 'My applications' : 'Applicant login' }}</a>
             </div>
         </div>
     </div>
@@ -90,7 +91,7 @@
     </main>
 
     {{-- CTA band --}}
-    @unless(request()->routeIs('contact', 'careers.apply', 'careers.general'))
+    @unless(request()->routeIs('contact', 'careers.apply', 'careers.general', 'portal.*'))
     <section class="relative overflow-hidden bg-blue-500 text-white">
         <div class="container-x flex flex-col items-start justify-between gap-6 py-12 md:flex-row md:items-center">
             <div><p class="eyebrow-light !text-blue-100">Protection beyond your expectation</p><h2 class="h2 mt-2">Talk to a security consultant today</h2><p class="mt-2 max-w-xl text-blue-50">Site survey and written proposal within 48 hours. Management available 24/7.</p></div>
@@ -123,6 +124,7 @@
                     <li><a href="{{ route('about') }}" class="hover:text-white">About Fortress</a></li>
                     <li><a href="{{ route('training') }}" class="hover:text-white">Officer training</a></li>
                     <li><a href="{{ route('careers') }}" class="hover:text-white">Careers &amp; vacancies</a></li>
+                    <li><a href="{{ route('portal.login') }}" class="hover:text-white">Applicant portal</a></li>
                     <li><a href="{{ route('track') }}" target="_blank" rel="noopener" class="hover:text-white">Track your vehicle ↗</a></li>
                     <li><a href="{{ route('contact') }}" class="hover:text-white">Request a quote</a></li>
                     <li><a href="{{ route('privacy') }}" class="hover:text-white">Privacy policy</a></li>

@@ -1,0 +1,3 @@
+@props(['application'])
+@php $map = ['sent' => 'bg-blue-50 text-blue-500 ring-blue-200', 'review' => 'bg-violet-50 text-violet-700 ring-violet-200', 'interview' => 'bg-amber-400/15 text-amber-500 ring-amber-400/40', 'accepted' => 'bg-green-600 text-white ring-green-600', 'rejected' => 'bg-steel-100 text-steel-500 ring-steel-200', 'withdrawn' => 'bg-steel-100 text-steel-500 ring-steel-200']; @endphp
+<span {{ $attributes->merge(['class' => 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset '.($map[$application->publicStatus()] ?? $map['sent'])]) }}>{{ $application->publicStatusLabel() }}</span>

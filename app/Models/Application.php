@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\ApplicantNotifier;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,12 +24,19 @@ class Application extends Model
 
     public const LICENCES = ['none' => 'No permit', '3' => 'Class 3', '4' => 'Class 4', '5' => 'Class 5', 'ht' => 'Heavy-T'];
 
+    /** What the applicant sees in their portal for each internal stage. */
+    public const PUBLIC_STATUSES = [
+        'new' => ['sent', 'Application sent'], 'screening' => ['review', 'In review'], 'assessment' => ['review', 'In review'],
+        'interview' => ['interview', 'Interview stage'], 'offer' => ['accepted', 'Accepted'], 'hired' => ['accepted', 'Accepted'],
+        'rejected' => ['rejected', 'Not successful'], 'withdrawn' => ['withdrawn', 'Withdrawn'],
+    ];
+
     public const SOURCES = ['website' => 'Website', 'facebook' => 'Facebook', 'referral' => 'Referral', 'walk_in' => 'Walk-in', 'linkedin' => 'LinkedIn', 'other' => 'Other'];
 
     protected $fillable = [
-        'reference', 'job_posting_id', 'first_name', 'last_name', 'email', 'phone', 'address', 'area', 'date_of_birth', 'nationality',
+        'reference', 'job_posting_id', 'applicant_id', 'first_name', 'last_name', 'email', 'phone', 'address', 'area', 'date_of_birth', 'nationality',
         'licence_class', 'has_precept', 'has_police_certificate', 'has_firearm_licence', 'years_experience', 'education', 'current_employer',
-        'cover_letter', 'resume_path', 'resume_name', 'source', 'status', 'rating', 'assigned_to', 'status_changed_at', 'interview_at', 'consent', 'ip',
+        'cover_letter', 'resume_path', 'resume_name', 'source', 'status', 'rating', 'assigned_to', 'status_changed_at', 'interview_at', 'interview_slot_id', 'interview_location', 'consent', 'ip',
     ];
 
     protected function casts(): array
@@ -59,6 +67,39 @@ class Application extends Model
     public function job(): BelongsTo
     {
         return $this->belongsTo(JobPosting::class, 'job_posting_id');
+    }
+
+    public function applicant(): BelongsTo
+    {
+        return $this->belongsTo(Applicant::class);
+    }
+
+    public function interviewSlot(): BelongsTo
+    {
+        return $this->belongsTo(InterviewSlot::class);
+    }
+
+    public function publicStatus(): string
+    {
+        return self::PUBLIC_STATUSES[$this->status][0] ?? 'sent';
+    }
+
+    public function publicStatusLabel(): string
+    {
+        return self::PUBLIC_STATUSES[$this->status][1] ?? 'Application sent';
+    }
+
+    /** Applicant may pick an interview slot when invited to interview and no date is fixed yet. */
+    public function canBookInterview(): bool
+    {
+        return $this->status === 'interview' && ! $this->interview_at;
+    }
+
+    /** Timeline entries safe to show the applicant (no internal recruiter notes). */
+    public function publicNotes()
+    {
+        return $this->notes()->whereIn('type', ['status', 'interview', 'email', 'system'])
+            ->where(fn ($q) => $q->where('type', '!=', 'system')->orWhere('body', 'like', 'Application received%')->orWhere('body', 'like', 'Interview booked%'));
     }
 
     public function assignee(): BelongsTo
@@ -136,5 +177,9 @@ class Application extends Model
             'body' => 'Moved from '.(self::STAGES[$from] ?? $from).' to '.self::STAGES[$status].($comment ? ' — '.trim($comment) : ''),
             'meta' => ['from' => $from, 'to' => $status],
         ]);
+
+        if ((self::PUBLIC_STATUSES[$from][0] ?? null) !== $this->publicStatus()) {
+            app(ApplicantNotifier::class)->statusChanged($this);
+        }
     }
 }

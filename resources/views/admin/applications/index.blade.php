@@ -1,4 +1,4 @@
-<x-layouts.admin title="Applicants" wide>
+<x-layouts.admin title="Applicants">
     <x-slot:actions><a href="{{ route('admin.applications.pipeline', request()->query()) }}" class="admin-btn-secondary"><x-icon name="columns" class="h-4 w-4" />Pipeline</a><a href="{{ route('admin.applications.export', request()->query()) }}" class="admin-btn-secondary"><x-icon name="download" class="h-4 w-4" />Export CSV</a></x-slot:actions>
     <div class="mb-5 flex flex-wrap gap-2">
         <a href="{{ route('admin.applications.index', request()->except('status', 'page')) }}" class="rounded-full px-3.5 py-1.5 text-sm font-semibold {{ ! request('status') ? 'bg-navy-900 text-white' : 'bg-white text-steel-600 ring-1 ring-steel-200' }}">All <span class="opacity-60">{{ $stageCounts->sum() }}</span></a>

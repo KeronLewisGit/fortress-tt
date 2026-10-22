@@ -1,4 +1,4 @@
-<x-layouts.admin title="Hiring pipeline" wide>
+<x-layouts.admin title="Hiring pipeline">
     <x-slot:actions>
         <form class="flex gap-2"><select name="job" class="field !py-1.5 w-56 max-w-[60vw]" onchange="this.form.submit()"><option value="">All jobs</option><option value="general" @selected(request('job') === 'general')>General applications</option>@foreach($jobs as $j)<option value="{{ $j->id }}" @selected(request('job') == $j->id)>{{ $j->title }}</option>@endforeach</select><select name="assigned" class="field !py-1.5" onchange="this.form.submit()"><option value="">Any recruiter</option><option value="me" @selected(request('assigned') === 'me')>Mine</option><option value="none" @selected(request('assigned') === 'none')>Unassigned</option></select></form>
         <a href="{{ route('admin.applications.index', request()->query()) }}" class="admin-btn-secondary"><x-icon name="list" class="h-4 w-4" />List</a>

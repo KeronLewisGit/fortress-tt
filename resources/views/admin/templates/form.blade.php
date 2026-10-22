@@ -1,10 +1,10 @@
 <x-layouts.admin :title="$template->exists ? 'Edit template' : 'New template'">
-    <form method="POST" action="{{ $template->exists ? route('admin.templates.update', $template) : route('admin.templates.store') }}" class="admin-card mx-auto max-w-3xl p-6 space-y-5">@csrf @if($template->exists)@method('PUT')@endif
+    <form method="POST" action="{{ $template->exists ? route('admin.templates.update', $template) : route('admin.templates.store') }}" class="admin-card max-w-3xl p-6 space-y-5">@csrf @if($template->exists)@method('PUT')@endif
         <div class="grid gap-5 sm:grid-cols-3"><div class="sm:col-span-2"><label class="label" for="name">Template name *</label><input id="name" name="name" value="{{ old('name', $template->name) }}" required maxlength="80" class="field"></div><div><label class="label" for="sort_order">Order</label><input id="sort_order" type="number" min="0" max="1000" name="sort_order" value="{{ old('sort_order', $template->sort_order) }}" required class="field"></div></div>
         <div><label class="label" for="subject">Subject *</label><input id="subject" name="subject" value="{{ old('subject', $template->subject) }}" required maxlength="200" class="field"></div>
         <div><label class="label" for="body">Body *</label><textarea id="body" name="body" rows="14" required class="field text-sm">{{ old('body', $template->body) }}</textarea><p class="help">Placeholders: {{ implode(' ', \App\Models\MessageTemplate::placeholders()) }}</p></div>
         <div><label class="label" for="set_status">After sending, move applicant to</label><select id="set_status" name="set_status" class="field"><option value="">Keep current stage</option>@foreach(\App\Models\Application::STAGES as $k => $v)<option value="{{ $k }}" @selected(old('set_status', $template->set_status) === $k)>{{ $v }}</option>@endforeach</select></div>
         <div class="flex items-center gap-2"><button class="admin-btn-primary">Save</button><a href="{{ route('admin.templates.index') }}" class="admin-btn-secondary">Cancel</a></div>
     </form>
-    @if($template->exists)<div class="mx-auto mt-6 max-w-3xl text-right"><x-admin-delete :action="route('admin.templates.destroy', $template)" label="Delete template" /></div>@endif
+    @if($template->exists)<div class="mt-6 max-w-3xl text-right"><x-admin-delete :action="route('admin.templates.destroy', $template)" label="Delete template" /></div>@endif
 </x-layouts.admin>

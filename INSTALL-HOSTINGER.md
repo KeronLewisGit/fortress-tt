@@ -88,7 +88,8 @@ If `php` is an old version, use the path shown in hPanel, e.g. `/opt/alt/php83/u
 2. **Admin → Jobs:** review the seven starter vacancies (based on your recent Facebook hiring posts). Edit, close or delete any that are not current; post new ones.
 3. **Admin → Email templates:** adjust the interview, documents, offer and rejection wording.
 4. **Admin → Users:** add recruiters. *Recruiter* accounts manage jobs, applicants, templates and enquiries; *Administrator* accounts also manage services, settings, users and can delete applicants.
-5. Update the Facebook “We're hiring” posts to link to `https://www.fortress.tt/careers` and submit `https://www.fortress.tt/sitemap.xml` in Google Search Console.
+5. **Admin → Interviews:** publish interview slots so applicants invited to interview can self-book from their portal (`https://www.fortress.tt/portal`).
+6. Update the Facebook “We're hiring” posts to link to `https://www.fortress.tt/careers` and submit `https://www.fortress.tt/sitemap.xml` in Google Search Console.
 
 ## Updating later
 

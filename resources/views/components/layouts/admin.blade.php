@@ -1,4 +1,4 @@
-@props(['title' => 'Admin', 'wide' => false])
+@props(['title' => 'Admin'])
 <!DOCTYPE html>
 <html lang="en" class="h-full bg-steel-50">
 <head>
@@ -19,6 +19,7 @@
         ['Pipeline', route('admin.applications.pipeline'), 'admin.applications.pipeline', 'columns', null],
         ['Applicants', route('admin.applications.index'), 'admin.applications.index|admin.applications.show', 'users', $newApps],
         ['Jobs', route('admin.jobs.index'), 'admin.jobs.*', 'briefcase', null],
+        ['Interviews', route('admin.interviews.index'), 'admin.interviews.*', 'calendar', \App\Models\Application::where('status', 'interview')->whereNull('interview_at')->count() ?: null],
         ['Enquiries', route('admin.enquiries.index'), 'admin.enquiries.*', 'inbox', $newEnq],
         ['Email templates', route('admin.templates.index'), 'admin.templates.*', 'template', null],
     ];
@@ -51,7 +52,7 @@
             <h1 class="min-w-0 flex-1 basis-40 truncate font-display text-xl font-bold uppercase tracking-wide text-navy-900">{{ $title }}</h1>
             <div class="ml-auto flex max-w-full items-center gap-2 overflow-x-auto">{{ $actions ?? '' }}@unless(request()->routeIs('admin.jobs.create'))<a href="{{ route('admin.jobs.create') }}" class="{{ isset($actions) && trim($actions) !== '' ? 'admin-btn-secondary hidden md:inline-flex' : 'admin-btn-blue' }} whitespace-nowrap">+ Post a job</a>@endunless</div>
         </header>
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 {{ $wide ? '' : 'mx-auto w-full max-w-7xl' }}">
+        <main class="w-full flex-1 p-4 sm:p-6 lg:p-8">
             @if(session('status'))<div class="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-800">{{ session('status') }}</div>@endif
             @if($errors->any())<div class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert"><p class="font-semibold">Please fix the following:</p><ul class="mt-1 list-disc pl-4">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>@endif
             {{ $slot }}

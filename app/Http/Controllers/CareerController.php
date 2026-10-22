@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Mail\ApplicationReceived;
 use App\Mail\NewApplicationAlert;
+use App\Models\Applicant;
 use App\Models\Application;
 use App\Models\JobPosting;
+use App\Services\ApplicantNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -39,18 +41,18 @@ class CareerController extends Controller
         ]);
     }
 
-    public function general()
+    public function general(Request $request)
     {
         abort_unless(setting('careers.general_applications', true), 404);
 
-        return view('pages.apply', ['job' => null]);
+        return view('pages.apply', ['job' => null, 'applicant' => $request->user('applicant')]);
     }
 
-    public function apply(JobPosting $job)
+    public function apply(Request $request, JobPosting $job)
     {
         abort_unless($job->isLive(), 404);
 
-        return view('pages.apply', ['job' => $job]);
+        return view('pages.apply', ['job' => $job, 'applicant' => $request->user('applicant')]);
     }
 
     public function store(Request $request, ?JobPosting $job = null)
@@ -110,7 +112,12 @@ class CareerController extends Controller
             'source' => $data['source'] ?? 'website',
             'consent' => true,
             'ip' => $request->ip(),
+            'applicant_id' => $request->user('applicant')?->id ?? Applicant::where('email', strtolower($data['email']))->value('id'),
         ]));
+        if ($application->applicant_id && ! $application->resume_path && $application->applicant->resume_path) {
+            $application->forceFill(['resume_path' => $application->applicant->resume_path, 'resume_name' => $application->applicant->resume_name])->save();
+        }
+        app(ApplicantNotifier::class)->applicationReceived($application);
         $application->notes()->create(['type' => 'system', 'body' => 'Application received via website'.($job ? ' for '.$job->title : ' (general application)')]);
 
         $mailFailed = false;

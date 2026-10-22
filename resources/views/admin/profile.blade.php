@@ -1,5 +1,5 @@
 <x-layouts.admin title="My profile">
-    <form method="POST" action="{{ route('admin.profile.update') }}" class="admin-card mx-auto max-w-xl p-6 space-y-4">@csrf @method('PUT')
+    <form method="POST" action="{{ route('admin.profile.update') }}" class="admin-card max-w-xl p-6 space-y-4">@csrf @method('PUT')
         <div><label class="label" for="name">Name</label><input id="name" name="name" value="{{ old('name', $user->name) }}" required class="field"></div>
         <div><label class="label" for="email">Email</label><input id="email" type="email" name="email" value="{{ old('email', $user->email) }}" required class="field"></div>
         <hr class="border-steel-200">
