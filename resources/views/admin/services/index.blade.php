@@ -1,0 +1,6 @@
+<x-layouts.admin title="Services">
+    <x-slot:actions><a href="{{ route('admin.services.create') }}" class="admin-btn-blue">+ Add service</a></x-slot:actions>
+    <div class="admin-card overflow-x-auto"><table class="admin-table"><thead><tr><th>Order</th><th>Service</th><th>Summary</th><th>Flags</th><th></th></tr></thead><tbody>
+        @foreach($services as $s)<tr><td class="text-steel-500">{{ $s->sort_order }}</td><td><a href="{{ route('admin.services.edit', $s) }}" class="flex items-center gap-3 font-semibold text-navy-900 hover:text-blue-500"><span class="rounded-md bg-navy-900 p-1.5 text-blue-300"><x-icon :name="$s->icon" class="h-4 w-4" /></span>{{ $s->name }}</a><p class="ml-10 text-xs text-steel-500">/services/{{ $s->slug }}</p></td><td class="max-w-md text-sm text-steel-600"><p class="line-clamp-2">{{ $s->summary }}</p></td><td class="text-xs">@if($s->is_featured)<span class="chip-amber">Featured</span>@endif @unless($s->is_active)<span class="chip">Hidden</span>@endunless</td><td class="text-right"><a href="{{ route('services.show', $s) }}" target="_blank" class="admin-btn-secondary !px-2.5"><x-icon name="external" class="h-4 w-4" /></a></td></tr>@endforeach
+    </tbody></table></div>
+</x-layouts.admin>
