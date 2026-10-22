@@ -142,4 +142,18 @@ return [
         'CCTV, Access Control & Alarms', 'Alarm Monitoring', 'GPS Tracking', 'Investigations',
         'Special Event Security', 'Valet Services', 'Polygraph Services', 'Other',
     ],
+
+    // Licensed Shutterstock imagery (Standard License, team subscription) – public/assets/img/*.webp
+    'service_images' => [
+        'protection-officers' => 'industrial-team',
+        'cash-in-transit' => 'cit-truck',
+        'personal-protection' => 'executive-protection',
+        'cctv-access-control-alarms' => 'cctv-install',
+        'alarm-monitoring' => 'control-room',
+        'gps-tracking' => 'gps-fleet',
+        'courier-services' => 'uniform-detail',
+        'investigations' => 'consultation',
+        'event-security' => 'event-gate',
+        'valet-services' => 'valet',
+    ],
 ];

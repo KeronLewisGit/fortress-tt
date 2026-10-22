@@ -1,5 +1,5 @@
 <x-layouts.public title="Contact & quotes" description="Request a security quote from Fortress Security Services. Head office 8 Desaine Street, St. Augustine (868) 223-2223 · Marabella branch (868) 223-9666.">
-    <section class="bg-navy-950 py-20 text-white"><div class="container-x"><p class="eyebrow-light">Contact us</p><h1 class="h1 mt-4 max-w-4xl">Request a quote or site survey</h1><p class="mt-6 max-w-2xl text-lg text-blue-100/85">Tell us about your premises or event and a security consultant will respond within one business day. For emergencies, call the head office – management is available 24/7.</p></div></section>
+    <x-page-hero eyebrow="Contact us" title="Request a quote or site survey" image="consultation" alt="Fortress security consultant meeting a client" position="center 30%">Tell us about your premises or event and a security consultant will respond within one business day. For emergencies, call the head office – management is available 24/7.</x-page-hero>
     <section class="py-16"><div class="container-x grid gap-12 lg:grid-cols-5">
         <form method="POST" action="{{ route('contact.store') }}" class="card space-y-5 p-6 sm:p-8 lg:col-span-3" novalidate>
             @csrf

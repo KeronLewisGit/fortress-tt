@@ -6,6 +6,7 @@
 public_html/
 ├── index.php  .htaccess  robots.txt  favicon.svg  setup.php  INSTALL-HOSTINGER.md
 ├── build/                       compiled CSS, JS and fonts
+├── assets/                      licensed photos (WebP) and the hero video loop
 └── fortress-app/                the Laravel application (blocked from the web by its own .htaccess)
     ├── .env.example             → copy to .env and fill in
     └── storage/app/resumes/     applicant CVs (never web-accessible)

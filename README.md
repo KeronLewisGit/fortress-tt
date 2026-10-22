@@ -6,6 +6,8 @@ A Laravel 13 rebuild of [fortress.tt](https://www.fortress.tt) with a careers pa
 
 **Public site** – home, about (history, mission, certifications, offices), services catalogue with detail pages, training ladder, careers with searchable vacancies, 5-minute application form with CV upload, quote request form, vehicle-tracking redirect, sitemap and JSON-LD.
 
+**Imagery & motion** – 14 licensed Shutterstock photos (WebP, two sizes) and a looping control-room video in the hero, a CSS radar "live monitoring" mograph, kinetic headline, scroll-reveal, count-up stats and a credentials marquee, all respecting `prefers-reduced-motion`.
+
 **Recruitment back office** (`/admin`) – dashboard with 14-day application chart and pipeline counts, job posting editor (draft/open/paused/closed, closing dates, urgent flag, duplicate), applicant list with filters and CSV export, drag-and-drop hiring pipeline, applicant profile with rating, recruiter assignment, interview scheduling, notes timeline, one-click templated emails that can advance the stage, secure CV download, quote-enquiry CRM, email templates, site settings, services editor, users with admin/recruiter roles.
 
 ## Local development

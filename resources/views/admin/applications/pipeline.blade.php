@@ -8,7 +8,7 @@
         <p class="mb-4 text-sm text-steel-500">Drag a card to move an applicant to a new stage. Hired: <a href="{{ route('admin.applications.index', ['status' => 'hired']) }}" class="font-semibold text-green-700">{{ $closedCounts['hired'] }}</a> · Rejected: <a href="{{ route('admin.applications.index', ['status' => 'rejected']) }}" class="font-semibold text-steel-600">{{ $closedCounts['rejected'] }}</a></p>
         <div class="flex gap-4 overflow-x-auto pb-4">
             @foreach($columns as $stage => $apps)
-                <section class="kanban-col" data-stage="{{ $stage }}" :class="over === '{{ $stage }}' ? 'drag-over' : ''" @dragover.prevent="over = '{{ $stage }}'" @dragleave="over = null" @drop.prevent="drop('{{ $stage }}')">
+                <section class="kanban-col" data-stage="{{ $stage }}" :class="over === '{{ $stage }}' ? 'drag-over' : ''" @dragover.prevent="over = '{{ $stage }}'" @dragleave.self="over = null" @drop.prevent="drop('{{ $stage }}')">
                     <header class="flex items-center justify-between px-2 py-1.5"><h2 class="flex items-center gap-2 text-sm font-bold text-navy-900"><x-stage-badge :status="$stage" :label="\App\Models\Application::STAGES[$stage]" /></h2><span class="rounded-full bg-white px-2 py-0.5 text-xs font-bold text-steel-600" data-count>{{ $apps->count() }}</span></header>
                     <div class="flex min-h-[60vh] flex-col gap-2" data-list>
                         <p class="rounded-lg border border-dashed border-steel-300 p-4 text-center text-xs text-steel-400 {{ $apps->count() ? 'hidden' : '' }}" data-empty>Drop applicants here</p>

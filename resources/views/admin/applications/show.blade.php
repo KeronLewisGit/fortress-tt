@@ -38,13 +38,13 @@
             </div>
 
             {{-- Send email --}}
-            <div class="admin-card p-6" x-data="composer(@js($templates->map(fn ($t) => ['id' => $t->id, 'name' => $t->name, 'subject' => $t->subject, 'body' => $t->body, 'set_status' => $t->set_status])))">
+            <div class="admin-card p-6" x-data="composer(@js($templates->map(fn ($t) => ['id' => $t->id, 'name' => $t->name, 'subject' => $t->subject, 'body' => $t->body, 'set_status' => $t->set_status])), @js(['subject' => old('subject', ''), 'body' => old('body', ''), 'set_status' => old('set_status', ''), 'open' => $errors->has('body') || $errors->has('subject') || old('subject') !== null]))">
                 <div class="flex items-center justify-between"><h3 class="font-display text-lg font-bold uppercase tracking-wide text-navy-900">Email applicant</h3><a href="{{ route('admin.templates.index') }}" class="text-xs font-semibold text-blue-500">Manage templates</a></div>
                 <form method="POST" action="{{ route('admin.applications.message', $application) }}" class="mt-4 space-y-4">@csrf
                     <div class="flex flex-wrap gap-2">@foreach($templates as $t)<button type="button" @click="pick({{ $t->id }}); open = true" class="rounded-full border border-steel-200 bg-white px-3 py-1 text-xs font-semibold text-steel-700 hover:border-blue-300 hover:text-blue-500">{{ $t->name }}</button>@endforeach<button type="button" @click="open = !open" class="rounded-full border border-dashed border-steel-300 px-3 py-1 text-xs font-semibold text-steel-500">Blank email</button></div>
                     <div x-show="open" x-cloak class="space-y-3">
-                        <input name="subject" x-model="subject" value="{{ old('subject') }}" placeholder="Subject" required class="field">
-                        <textarea name="body" x-model="body" rows="10" required class="field text-sm">{{ old('body') }}</textarea>
+                        <input name="subject" x-model="subject" placeholder="Subject" required class="field">
+                        <textarea name="body" x-model="body" rows="10" required class="field text-sm"></textarea>
                         <div class="flex flex-wrap items-center gap-3"><select name="set_status" x-model="setStatus" class="field w-auto"><option value="">Keep current stage</option>@foreach(\App\Models\Application::STAGES as $k => $v)<option value="{{ $k }}">Move to {{ $v }} after sending</option>@endforeach</select><button class="admin-btn-blue"><x-icon name="mail" class="h-4 w-4" />Send to {{ $application->email }}</button></div>
                         <p class="help">Placeholders {{ implode(' ', \App\Models\MessageTemplate::placeholders()) }} are replaced before sending. Set the interview date in the side panel first if the template uses it.</p>
                     </div>

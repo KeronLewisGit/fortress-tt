@@ -26,7 +26,7 @@
     </div>
 
     <div class="mt-6 grid gap-6 xl:grid-cols-3">
-        <div class="admin-card xl:col-span-2">
+        <div class="admin-card overflow-x-auto xl:col-span-2">
             <div class="flex items-center justify-between border-b border-steel-200 px-5 py-4"><h2 class="font-display text-lg font-bold uppercase tracking-wide text-navy-900">Recent applicants</h2><a href="{{ route('admin.applications.index') }}" class="text-sm font-semibold text-blue-500">All applicants →</a></div>
             <table class="admin-table"><thead><tr><th>Applicant</th><th>Role</th><th>Stage</th><th>Applied</th></tr></thead><tbody>
                 @forelse($recent as $a)<tr><td><a href="{{ route('admin.applications.show', $a) }}" class="font-semibold text-navy-900 hover:text-blue-500">{{ $a->full_name }}</a><p class="text-xs text-steel-500">{{ $a->area }} · {{ $a->licenceLabel() }}</p></td><td class="text-steel-600">{{ $a->job?->title ?? 'General' }}</td><td><x-stage-badge :status="$a->status" :label="$a->stageLabel()" /></td><td class="text-steel-500">{{ $a->created_at->diffForHumans(short: true) }}</td></tr>

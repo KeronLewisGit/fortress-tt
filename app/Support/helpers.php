@@ -83,3 +83,18 @@ if (! function_exists('lines_to_array')) {
         return array_values(array_filter(array_map(fn ($l) => trim(preg_replace('/^(?:[-*]|•)\s*/u', '', $l)), preg_split('/\r\n|\r|\n/', (string) $text)), fn ($l) => $l !== ''));
     }
 }
+
+if (! function_exists('img')) {
+    /** URL for a bundled WebP photo in public/assets/img (name without extension). */
+    function img(string $name, ?int $width = null): string
+    {
+        return asset('assets/img/'.$name.($width ? '-'.$width : '').'.webp');
+    }
+}
+
+if (! function_exists('service_image')) {
+    function service_image(\App\Models\Service $service): ?string
+    {
+        return config('fortress.service_images.'.$service->slug);
+    }
+}

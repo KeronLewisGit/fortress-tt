@@ -33,7 +33,7 @@
         'foundingDate' => '2006', 'slogan' => fortress('motto'),
     ], JSON_UNESCAPED_SLASHES) !!}</script>
 </head>
-<body class="flex min-h-full flex-col" x-data="{ nav: false }">
+<body class="flex min-h-full flex-col" x-data="{ nav: false }" :class="nav ? 'overflow-hidden' : ''" @keydown.escape.window="nav = false">
     <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded focus:bg-white focus:px-3 focus:py-2">Skip to content</a>
 
     {{-- Top bar --}}

@@ -32,6 +32,7 @@ cp "$ROOT/deploy/app.htaccess" "$APP/.htaccess"
 
 echo "→ Staging public files"
 cp -R "$ROOT/public/build" "$STAGE/build"
+cp -R "$ROOT/public/assets" "$STAGE/assets"
 cp "$ROOT/public/favicon.svg" "$STAGE/favicon.svg"
 cp "$ROOT/deploy/index.php" "$STAGE/index.php"
 cp "$ROOT/deploy/.htaccess" "$STAGE/.htaccess"
