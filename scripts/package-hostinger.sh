@@ -17,7 +17,7 @@ rsync -a --delete \
   --exclude '.git' --exclude 'node_modules' --exclude 'tests' --exclude 'dist' --exclude 'deploy' --exclude 'scripts' \
   --exclude '/public' --exclude '/vendor' --exclude '.env' --exclude 'database/database.sqlite' \
   --exclude 'storage/logs/*' --exclude 'storage/framework/cache/data/*' --exclude 'storage/framework/sessions/*' \
-  --exclude 'storage/framework/views/*' --exclude 'storage/app/private/*' --exclude 'storage/app/public/*' --exclude 'storage/app/resumes/*' --exclude 'bootstrap/cache/*' \
+  --exclude 'storage/framework/views/*' --exclude 'storage/app/private/*' --exclude 'storage/app/public/*' --exclude 'bootstrap/cache/*' \
   --exclude '.phpunit*' --exclude 'phpunit.xml' --exclude 'boost.json' --exclude 'AGENTS.md' --exclude 'CLAUDE.md' --exclude 'README.md' \
   "$ROOT/" "$APP/"
 
@@ -25,8 +25,8 @@ echo "→ Installing production PHP dependencies (PHP 8.3 compatible)"
 cp "$ROOT/composer.json" "$ROOT/composer.lock" "$APP/"
 ( cd "$APP" && composer install --no-dev --optimize-autoloader --no-interaction --quiet --ignore-platform-req=php )
 
-mkdir -p "$APP/storage/framework/"{cache/data,sessions,views,testing} "$APP/storage/logs" "$APP/storage/app/private" "$APP/storage/app/resumes" "$APP/bootstrap/cache"
-touch "$APP/storage/logs/.gitkeep" "$APP/storage/app/resumes/.gitkeep"
+mkdir -p "$APP/storage/framework/"{cache/data,sessions,views,testing} "$APP/storage/logs" "$APP/storage/app/private/resumes" "$APP/storage/app/public" "$APP/bootstrap/cache"
+touch "$APP/storage/logs/.gitkeep" "$APP/storage/app/private/resumes/.gitkeep"
 cp "$ROOT/deploy/env.production.example" "$APP/.env.example"
 cp "$ROOT/deploy/app.htaccess" "$APP/.htaccess"
 

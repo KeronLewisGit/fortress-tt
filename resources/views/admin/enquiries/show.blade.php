@@ -13,13 +13,15 @@
             </dl>
             <p class="mt-6 whitespace-pre-line rounded-lg bg-steel-50 p-4 text-sm text-steel-800">{{ $enquiry->message }}</p>
         </div>
+        <div class="space-y-3">
         <form method="POST" action="{{ route('admin.enquiries.update', $enquiry) }}" class="admin-card p-6 space-y-4">@csrf @method('PUT')
             <h3 class="font-display text-lg font-bold uppercase tracking-wide text-navy-900">Follow-up</h3>
             <div><label class="label" for="status">Status</label><select id="status" name="status" class="field">@foreach(\App\Models\Enquiry::STATUSES as $k => $v)<option value="{{ $k }}" @selected($enquiry->status === $k)>{{ $v }}</option>@endforeach</select></div>
             <div><label class="label" for="assigned_to">Owner</label><select id="assigned_to" name="assigned_to" class="field"><option value="">Unassigned</option>@foreach($users as $u)<option value="{{ $u->id }}" @selected($enquiry->assigned_to == $u->id)>{{ $u->name }}</option>@endforeach</select></div>
             <div><label class="label" for="notes">Internal notes</label><textarea id="notes" name="notes" rows="7" class="field text-sm" placeholder="Site survey date, quote value, next call…">{{ old('notes', $enquiry->notes) }}</textarea></div>
             <button class="admin-btn-primary w-full justify-center">Save</button>
-            <div class="pt-2 text-right"><x-admin-delete :action="route('admin.enquiries.destroy', $enquiry)" /></div>
         </form>
+        <div class="text-right"><x-admin-delete :action="route('admin.enquiries.destroy', $enquiry)" label="Delete enquiry" /></div>
+        </div>
     </div>
 </x-layouts.admin>

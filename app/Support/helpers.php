@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Service;
 use App\Models\Setting;
+use Illuminate\Support\Str;
 
 if (! function_exists('setting')) {
     function setting(string $key, mixed $default = null): mixed
@@ -65,7 +67,7 @@ if (! function_exists('notification_addresses')) {
 if (! function_exists('unique_slug')) {
     function unique_slug(string $model, string $name, ?int $ignoreId = null): string
     {
-        $base = \Illuminate\Support\Str::slug($name) ?: 'item';
+        $base = Str::slug($name) ?: 'item';
         $slug = $base;
         $i = 2;
         while ($model::where('slug', $slug)->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))->exists()) {
@@ -93,7 +95,7 @@ if (! function_exists('img')) {
 }
 
 if (! function_exists('service_image')) {
-    function service_image(\App\Models\Service $service): ?string
+    function service_image(Service $service): ?string
     {
         return config('fortress.service_images.'.$service->slug);
     }

@@ -13,7 +13,7 @@ class CloseExpiredJobs extends Command
 
     public function handle(): int
     {
-        $n = JobPosting::where('status', 'open')->whereNotNull('closes_at')->where('closes_at', '<', today())->update(['status' => 'closed']);
+        $n = JobPosting::where('status', 'open')->whereNotNull('closes_at')->where('closes_at', '<', today()->toDateString())->update(['status' => 'closed']);
         $this->info("Closed $n expired job postings");
 
         return self::SUCCESS;

@@ -83,11 +83,17 @@ class Application extends Model
             return $q;
         }
 
-        return $q->where(function ($w) use ($term) {
-            $like = '%'.$term.'%';
-            $w->where('first_name', 'like', $like)->orWhere('last_name', 'like', $like)->orWhere('email', 'like', $like)
-                ->orWhere('phone', 'like', $like)->orWhere('reference', 'like', $like)->orWhere('area', 'like', $like)
-                ->orWhereRaw("(first_name || ' ' || last_name) like ?", [$like]);
+        $like = '%'.$term.'%';
+        $words = preg_split('/\s+/', $term);
+
+        return $q->where(function ($w) use ($like, $words) {
+            $w->where('email', 'like', $like)->orWhere('phone', 'like', $like)->orWhere('reference', 'like', $like)->orWhere('area', 'like', $like)
+                // "Kerry Joseph" → every word must match a name part (portable, no DB-specific concat)
+                ->orWhere(function ($n) use ($words) {
+                    foreach ($words as $word) {
+                        $n->where(fn ($p) => $p->where('first_name', 'like', '%'.$word.'%')->orWhere('last_name', 'like', '%'.$word.'%'));
+                    }
+                });
         });
     }
 
@@ -127,7 +133,7 @@ class Application extends Model
         $this->notes()->create([
             'user_id' => $by?->id,
             'type' => 'status',
-            'body' => $comment ?: 'Moved from '.(self::STAGES[$from] ?? $from).' to '.self::STAGES[$status],
+            'body' => 'Moved from '.(self::STAGES[$from] ?? $from).' to '.self::STAGES[$status].($comment ? ' — '.trim($comment) : ''),
             'meta' => ['from' => $from, 'to' => $status],
         ]);
     }

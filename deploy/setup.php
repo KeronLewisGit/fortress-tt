@@ -1,4 +1,8 @@
 <?php
+
+use Illuminate\Contracts\Console\Kernel;
+use Symfony\Component\Console\Output\BufferedOutput;
+
 /**
  * One-time installer for hosts without SSH. Visit /setup.php?token=YOUR_SETUP_TOKEN
  * after uploading the package and filling in fortress-app/.env. Deletes itself when done.
@@ -29,9 +33,9 @@ if ($token === '' || ! isset($_GET['token']) || ! hash_equals($token, $_GET['tok
 require $appPath.'/vendor/autoload.php';
 $app = require $appPath.'/bootstrap/app.php';
 $app->usePublicPath(__DIR__);
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$kernel = $app->make(Kernel::class);
 $run = function (string $cmd, array $args = []) use ($kernel) {
-    $out = new Symfony\Component\Console\Output\BufferedOutput;
+    $out = new BufferedOutput;
     $code = $kernel->call($cmd, $args, $out);
     echo '<pre style="background:#f4f4f4;padding:8px;font-size:12px">$ php artisan '.htmlspecialchars($cmd).'  → '.($code === 0 ? 'OK' : 'FAILED')."\n".htmlspecialchars($out->fetch()).'</pre>';
 

@@ -9,9 +9,9 @@
         <table class="admin-table"><thead><tr><th>Title</th><th>Location</th><th>Status</th><th>Applicants</th><th>Closes</th><th>Views</th><th></th></tr></thead><tbody>
         @forelse($jobs as $job)
             <tr>
-                <td><a href="{{ route('admin.jobs.edit', $job) }}" class="font-semibold text-navy-900 hover:text-blue-500">{{ $job->title }}</a><p class="text-xs text-steel-500">{{ $job->department }} · {{ $job->typeLabel() }} @if($job->is_featured)· <span class="text-amber-500">Urgent</span>@endif</p></td>
+                <td><a href="{{ route('admin.jobs.edit', $job) }}" class="font-semibold text-navy-900 hover:text-blue-500">{{ $job->title }}</a><p class="text-xs text-steel-500">{{ $job->department ? $job->department.' · ' : '' }}{{ $job->typeLabel() }}@if($job->is_featured) · <span class="text-amber-500">Urgent</span>@endif</p></td>
                 <td class="text-steel-600">{{ $job->location }}</td>
-                <td><x-stage-badge :status="$job->status" :label="\App\Models\JobPosting::STATUSES[$job->status]" /></td>
+                <td><x-stage-badge :status="$job->displayStatus()" :label="$job->isExpired() ? 'Expired' : \App\Models\JobPosting::STATUSES[$job->status]" />@if($job->status === 'open' && ! $job->isLive())<p class="mt-1 text-xs text-red-600" title="Open jobs only appear when the publish date has passed and the closing date has not">Not visible – check dates</p>@endif</td>
                 <td><a href="{{ route('admin.applications.index', ['job' => $job->id]) }}" class="font-semibold text-navy-900 hover:text-blue-500">{{ $job->applications_count }}</a>@if($job->new_count)<span class="ml-1 rounded-full bg-amber-400 px-1.5 text-[11px] font-bold text-navy-950">{{ $job->new_count }} new</span>@endif</td>
                 <td class="text-steel-600">{{ $job->closes_at?->format('j M Y') ?? '—' }}</td>
                 <td class="text-steel-600">{{ $job->views }}</td>

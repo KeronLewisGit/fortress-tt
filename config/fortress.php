@@ -156,4 +156,11 @@ return [
         'event-security' => 'event-gate',
         'valet-services' => 'valet',
     ],
+
+    // First administrator for `php artisan db:seed` (AdminSeeder). Set in .env, remove the password after first sign-in.
+    'admin' => [
+        'name' => env('ADMIN_NAME', 'Administrator'),
+        'email' => env('ADMIN_EMAIL'),
+        'password' => env('ADMIN_PASSWORD'),
+    ],
 ];

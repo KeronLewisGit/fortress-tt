@@ -4,7 +4,7 @@
         <a href="{{ route('admin.applications.index', request()->except('status', 'page')) }}" class="rounded-full px-3.5 py-1.5 text-sm font-semibold {{ ! request('status') ? 'bg-navy-900 text-white' : 'bg-white text-steel-600 ring-1 ring-steel-200' }}">All <span class="opacity-60">{{ $stageCounts->sum() }}</span></a>
         @foreach(\App\Models\Application::STAGES as $k => $label)<a href="{{ route('admin.applications.index', array_merge(request()->except('page'), ['status' => $k])) }}" class="rounded-full px-3.5 py-1.5 text-sm font-semibold {{ request('status') === $k ? 'bg-navy-900 text-white' : 'bg-white text-steel-600 ring-1 ring-steel-200 hover:bg-steel-50' }}">{{ $label }} <span class="opacity-60">{{ $stageCounts[$k] ?? 0 }}</span></a>@endforeach
     </div>
-    <form class="admin-card mb-5 grid gap-3 p-4 md:grid-cols-6" x-data>
+    <form class="admin-card mb-5 grid gap-3 p-4 md:grid-cols-6">
         <input type="hidden" name="status" value="{{ request('status') }}">
         <input type="search" name="q" value="{{ request('q') }}" placeholder="Name, email, phone, reference, area" class="field md:col-span-2">
         <select name="job" class="field"><option value="">All jobs</option><option value="general" @selected(request('job') === 'general')>General applications</option>@foreach($jobs as $j)<option value="{{ $j->id }}" @selected(request('job') == $j->id)>{{ $j->title }}{{ $j->status !== 'open' ? ' ('.$j->status.')' : '' }}</option>@endforeach</select>

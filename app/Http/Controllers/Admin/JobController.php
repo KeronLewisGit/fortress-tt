@@ -47,9 +47,10 @@ class JobController extends Controller
 
     public function update(Request $request, JobPosting $job)
     {
-        $data = $this->validated($request, $job);
-        if ($data['status'] === 'open' && empty($data['published_at']) && ! $job->published_at) {
-            $data['published_at'] = now();
+        $data = $this->validated($request);
+        if (empty($data['published_at'])) {
+            // Blank = keep what the job already has; publish now if it is being opened for the first time.
+            $data['published_at'] = $job->published_at ?? ($data['status'] === 'open' ? now() : null);
         }
         if ($request->boolean('regenerate_slug')) {
             $data['slug'] = unique_slug(JobPosting::class, $data['title'], $job->id);
@@ -87,7 +88,7 @@ class JobController extends Controller
         return redirect()->route('admin.jobs.index')->with('status', 'Job posting deleted. Its applications were kept as general applications.');
     }
 
-    private function validated(Request $request, ?JobPosting $job = null): array
+    private function validated(Request $request): array
     {
         $data = $request->validate([
             'title' => ['required', 'string', 'max:120'],
@@ -105,7 +106,7 @@ class JobController extends Controller
             'is_featured' => ['nullable', 'boolean'],
             'requires_licence' => ['nullable', 'boolean'],
             'requires_precept' => ['nullable', 'boolean'],
-            'closes_at' => ['nullable', 'date'],
+            'closes_at' => ['nullable', 'date', Rule::when($request->input('status') === 'open', ['after_or_equal:today'])],
             'published_at' => ['nullable', 'date'],
         ]);
         foreach (['responsibilities', 'requirements', 'benefits'] as $k) {

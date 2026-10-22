@@ -22,7 +22,7 @@ class SettingsController extends Controller
 
     public function update(Request $request)
     {
-        $data = $request->validate([
+        $request->validate([
             'settings' => ['required', 'array'],
             'settings.business.name' => ['required', 'string', 'max:120'],
             'settings.business.email' => ['nullable', 'email'],
@@ -38,9 +38,12 @@ class SettingsController extends Controller
             'settings.home.announcement' => ['nullable', 'string', 'max:200'],
         ]);
 
+        // validate() only returns keys that have rules, so read the full form input for every known key.
+        $input = $request->input('settings', []);
         $flat = [];
         foreach (self::KEYS as $key) {
-            $flat[$key] = data_get($data['settings'], $key);
+            $value = data_get($input, $key);
+            $flat[$key] = is_scalar($value) ? trim((string) $value) : null;
         }
         $flat['careers.general_applications'] = $request->boolean('settings.careers.general_applications') ? '1' : '0';
         $flat['careers.auto_reply'] = $request->boolean('settings.careers.auto_reply') ? '1' : '0';

@@ -1,4 +1,4 @@
-@props(['title' => null, 'description' => null, 'dark' => false])
+@props(['title' => null, 'description' => null])
 @php
     $siteName = setting('business.name', fortress('name'));
     $openJobs = \App\Models\JobPosting::live()->count();

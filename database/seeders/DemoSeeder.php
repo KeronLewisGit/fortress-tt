@@ -13,7 +13,13 @@ class DemoSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = User::firstOrCreate(['email' => 'admin@fortress.test'], ['name' => 'Fortress Admin', 'password' => 'password', 'role' => 'admin']);
+        if (app()->isProduction()) {
+            $this->command?->error('DemoSeeder is for local development only and was skipped.');
+
+            return;
+        }
+
+        User::firstOrCreate(['email' => 'admin@fortress.test'], ['name' => 'Fortress Admin', 'password' => 'password', 'role' => 'admin']);
         $recruiter = User::firstOrCreate(['email' => 'hr@fortress.test'], ['name' => 'Recruitment Officer', 'password' => 'password', 'role' => 'recruiter']);
 
         $jobs = JobPosting::all();

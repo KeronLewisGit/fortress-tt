@@ -52,13 +52,25 @@ class JobPosting extends Model
     {
         return $q->where('status', 'open')
             ->whereNotNull('published_at')->where('published_at', '<=', now())
-            ->where(fn ($w) => $w->whereNull('closes_at')->orWhere('closes_at', '>=', today()));
+            ->where(fn ($w) => $w->whereNull('closes_at')->orWhere('closes_at', '>=', today()->toDateString()));
     }
 
     public function isLive(): bool
     {
         return $this->status === 'open' && $this->published_at && $this->published_at->lte(now())
             && (! $this->closes_at || $this->closes_at->gte(today()));
+    }
+
+    /** Marked open but the closing date has passed (the nightly job will close it). */
+    public function isExpired(): bool
+    {
+        return $this->status === 'open' && $this->closes_at && $this->closes_at->lt(today());
+    }
+
+    /** Status to display in admin: "expired" for open jobs past their closing date. */
+    public function displayStatus(): string
+    {
+        return $this->isExpired() ? 'expired' : $this->status;
     }
 
     public function isClosingSoon(): bool

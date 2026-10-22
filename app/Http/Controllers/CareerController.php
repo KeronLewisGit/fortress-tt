@@ -8,13 +8,14 @@ use App\Models\Application;
 use App\Models\JobPosting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class CareerController extends Controller
 {
     public function index(Request $request)
     {
-        $jobs = JobPosting::live()->withCount('applications')
+        $jobs = JobPosting::live()
             ->when($request->filled('department'), fn ($q) => $q->where('department', $request->department))
             ->when($request->filled('type'), fn ($q) => $q->where('employment_type', $request->type))
             ->when($request->filled('q'), fn ($q) => $q->where(fn ($w) => $w->where('title', 'like', '%'.$request->q.'%')->orWhere('location', 'like', '%'.$request->q.'%')->orWhere('summary', 'like', '%'.$request->q.'%')))
@@ -82,7 +83,7 @@ class CareerController extends Controller
             'education' => ['nullable', 'string', 'max:120'],
             'current_employer' => ['nullable', 'string', 'max:255'],
             'cover_letter' => ['nullable', 'string', 'max:4000'],
-            'resume' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
+            'resume' => ['nullable', 'file', 'extensions:pdf,doc,docx', 'mimes:pdf,doc,docx', 'max:5120'],
             'source' => ['nullable', Rule::in(array_keys(Application::SOURCES))],
             'consent' => ['accepted'],
         ], [], ['date_of_birth' => 'date of birth', 'area' => 'town / area', 'licence_class' => "driver's permit"]);
@@ -94,9 +95,10 @@ class CareerController extends Controller
             return redirect()->route('careers.thanks', $dup->reference)->with('duplicate', true);
         }
 
+        unset($data['resume']);
         if ($file = $request->file('resume')) {
             $data['resume_path'] = $file->store('resumes', 'local');
-            $data['resume_name'] = substr($file->getClientOriginalName(), 0, 255);
+            $data['resume_name'] = Str::limit(basename(str_replace('\\', '/', $file->getClientOriginalName())), 200, '');
         }
 
         $application = Application::create(array_merge($data, [
@@ -111,18 +113,26 @@ class CareerController extends Controller
         ]));
         $application->notes()->create(['type' => 'system', 'body' => 'Application received via website'.($job ? ' for '.$job->title : ' (general application)')]);
 
+        $mailFailed = false;
         try {
             if (setting('careers.auto_reply', true)) {
                 Mail::to($application->email)->send(new ApplicationReceived($application));
             }
+        } catch (\Throwable $e) {
+            report($e);
+            $mailFailed = true;
+            $application->notes()->create(['type' => 'system', 'body' => 'Confirmation email to applicant failed: '.$e->getMessage()]);
+        }
+        try {
             if ($to = notification_addresses('notifications.recruitment_email')) {
                 Mail::to($to)->send(new NewApplicationAlert($application));
             }
         } catch (\Throwable $e) {
             report($e);
+            $application->notes()->create(['type' => 'system', 'body' => 'Recruiter alert email failed: '.$e->getMessage()]);
         }
 
-        return redirect()->route('careers.thanks', $application->reference);
+        return redirect()->route('careers.thanks', $application->reference)->with('mail_failed', $mailFailed);
     }
 
     public function thanks(string $reference)

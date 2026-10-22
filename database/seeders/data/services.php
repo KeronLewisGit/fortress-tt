@@ -47,7 +47,7 @@ return [
     [
         'slug' => 'courier-services', 'name' => 'Secure Courier', 'eyebrow' => 'Documents & valuables', 'icon' => 'package',
         'summary' => 'Security-escorted delivery of messages, documents, money and mail – tracked from pick-up to signature.',
-        'description' => "We deliver all types of packages – including messages, money and mail – securely and on schedule. Every item is logged, GPS-tracked while in transit and signed for on delivery, so you can follow the package until it reaches the recipient.",
+        'description' => 'We deliver all types of packages – including messages, money and mail – securely and on schedule. Every item is logged, GPS-tracked while in transit and signed for on delivery, so you can follow the package until it reaches the recipient.',
         'features' => ['Same-day island-wide delivery', 'Confidential document handling', 'Cash and cheque collections', 'Proof of delivery and tracking'],
         'ideal_for' => ['Law firms and financial institutions', 'Medical and laboratory services', 'Government and corporate offices'],
     ],
@@ -61,7 +61,7 @@ return [
     [
         'slug' => 'event-security', 'name' => 'Special Event Security', 'eyebrow' => 'Crowd management', 'icon' => 'calendar',
         'summary' => 'Trained crowd-control officers, access screening and incident management for events of any size – from private functions to national festivals.',
-        'description' => "We provide security for events of all sizes and ensure every event is well monitored and professionally managed – gate and ticket screening, crowd control, VIP areas, backstage and overnight site security, coordinated with the police and emergency services where required.",
+        'description' => 'We provide security for events of all sizes and ensure every event is well monitored and professionally managed – gate and ticket screening, crowd control, VIP areas, backstage and overnight site security, coordinated with the police and emergency services where required.',
         'features' => ['Crowd control and access screening', 'VIP and artiste protection', 'Overnight site and equipment security', 'Traffic and parking management', 'Liaison with TTPS and emergency services'],
         'ideal_for' => ['Fêtes, concerts and Carnival events', 'Corporate functions and conferences', 'Weddings and private parties', 'Sporting events'],
     ],

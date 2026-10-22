@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\JobPosting;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 /**
  * Starter vacancies based on the roles Fortress has been advertising on Facebook
@@ -43,7 +44,7 @@ class JobPostingSeeder extends Seeder
             [
                 'title' => 'Security Officers – Tobago', 'department' => 'Operations', 'location' => 'Scarborough and environs, Tobago', 'employment_type' => 'full_time',
                 'summary' => 'Officers resident in Tobago for static and patrol posts in Scarborough and environs.',
-                'description' => "Join the Fortress Security Services team in Tobago. Successful applicants receive in-house Level 1 training and a uniform kit, with permanent employment after probation.",
+                'description' => 'Join the Fortress Security Services team in Tobago. Successful applicants receive in-house Level 1 training and a uniform kit, with permanent employment after probation.',
                 'responsibilities' => ['Static guarding and access control', 'Foot and vehicle patrols', 'Incident and occurrence reporting', 'Client liaison and customer service'],
                 'requirements' => array_merge(['Applicants must reside in Tobago', 'Minimum of 3 years\' experience in the security field', 'School Leaving Certificate', 'Good command of the English language'], $common),
                 'benefits' => $benefits, 'openings' => 6,
@@ -59,7 +60,7 @@ class JobPostingSeeder extends Seeder
             [
                 'title' => 'Part-time Security EMT Officers', 'department' => 'Mobile Patrol & Response', 'location' => 'Trinidad – island-wide', 'employment_type' => 'part_time',
                 'summary' => 'Security officers with EMT / first-responder certification for events and industrial standby.',
-                'description' => "Fortress Security Services is seeking qualified Security EMT Officers to join our team on a part-time basis, delivering emergency medical care and security at events and client sites.",
+                'description' => 'Fortress Security Services is seeking qualified Security EMT Officers to join our team on a part-time basis, delivering emergency medical care and security at events and client sites.',
                 'responsibilities' => ['Provide first-responder medical care on site', 'Support event security and crowd management', 'Maintain medical kit inventory and incident records'],
                 'requirements' => array_merge(['Valid EMT or Emergency First Responder certification', 'Security experience is an asset'], $common),
                 'benefits' => ['Competitive hourly rates', 'Flexible scheduling', 'In-house training'], 'openings' => 5,
@@ -75,7 +76,7 @@ class JobPostingSeeder extends Seeder
             [
                 'title' => 'Web Developer / Digital Systems Administrator', 'department' => 'Marketing & IT', 'location' => 'St. Augustine', 'employment_type' => 'contract',
                 'summary' => 'Maintain the Fortress website, customer portals and internal systems; manage users, updates and backups.',
-                'description' => "Manage our websites, GPS customer portal integrations and internal digital systems, including user administration, updates, backups and vendor coordination.",
+                'description' => 'Manage our websites, GPS customer portal integrations and internal digital systems, including user administration, updates, backups and vendor coordination.',
                 'responsibilities' => ['Maintain and improve fortress.tt and the recruitment platform', 'Administer users, updates and backups', 'Coordinate with hosting and software vendors', 'Document systems and train staff'],
                 'requirements' => ['Experience with PHP / Laravel, HTML/CSS and MySQL', 'Working knowledge of cPanel / shared hosting and DNS', 'Attention to security best practices', 'Portfolio or GitHub profile'],
                 'benefits' => ['Competitive remuneration', 'Flexible working arrangements'], 'salary_note' => 'Negotiable, based on experience', 'openings' => 1,
@@ -83,7 +84,7 @@ class JobPostingSeeder extends Seeder
         ];
 
         foreach ($jobs as $i => $job) {
-            JobPosting::firstOrCreate(['slug' => \Illuminate\Support\Str::slug($job['title'])], $job + [
+            JobPosting::firstOrCreate(['slug' => Str::slug($job['title'])], $job + [
                 'status' => 'open', 'published_at' => now()->subDays(14 - $i), 'closes_at' => today()->addDays(30 + $i * 3),
             ]);
         }

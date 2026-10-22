@@ -74,8 +74,10 @@ class ApplicationController extends Controller
         }
         if ($request->has('interview_at')) {
             $application->interview_at = $data['interview_at'] ?: null;
-            if ($data['interview_at']) {
-                $application->notes()->create(['user_id' => $request->user()->id, 'type' => 'interview', 'body' => 'Interview scheduled for '.$application->interview_at->format('D j M Y, g:i a')]);
+            if ($application->isDirty('interview_at')) {
+                $application->notes()->create(['user_id' => $request->user()->id, 'type' => 'interview', 'body' => $application->interview_at
+                    ? 'Interview scheduled for '.$application->interview_at->format('D j M Y, g:i a')
+                    : 'Interview date cleared']);
             }
         }
         $application->save();
@@ -119,7 +121,7 @@ class ApplicationController extends Controller
 
         $application->notes()->create(['user_id' => $request->user()->id, 'type' => 'email', 'body' => $body, 'meta' => ['subject' => $subject]]);
         if (! empty($data['set_status'])) {
-            $application->moveTo($data['set_status'], $request->user(), 'Moved to '.Application::STAGES[$data['set_status']].' after sending “'.$subject.'”');
+            $application->moveTo($data['set_status'], $request->user(), 'after sending “'.$subject.'”');
         }
 
         return back()->with('status', 'Email sent to '.$application->email.'.');
@@ -139,12 +141,13 @@ class ApplicationController extends Controller
 
         return response()->streamDownload(function () use ($rows) {
             $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
             fputcsv($out, ['Reference', 'Applied', 'First name', 'Last name', 'Email', 'Phone', 'Area', 'Age', 'Job', 'Stage', 'Rating', 'Permit', 'Precept', 'Police cert', 'Experience (yrs)', 'Source']);
             foreach ($rows as $a) {
                 fputcsv($out, [$a->reference, $a->created_at->format('Y-m-d'), $a->first_name, $a->last_name, $a->email, $a->phone, $a->area, $a->age(), $a->job?->title ?? 'General', $a->stageLabel(), $a->rating, $a->licenceLabel(), $a->has_precept ? 'Yes' : 'No', $a->has_police_certificate ? 'Yes' : 'No', $a->years_experience, Application::SOURCES[$a->source] ?? $a->source]);
             }
             fclose($out);
-        }, $name, ['Content-Type' => 'text/csv']);
+        }, $name, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     public function destroy(Application $application)

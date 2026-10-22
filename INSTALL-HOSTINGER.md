@@ -9,7 +9,7 @@ public_html/
 ├── assets/                      licensed photos (WebP) and the hero video loop
 └── fortress-app/                the Laravel application (blocked from the web by its own .htaccess)
     ├── .env.example             → copy to .env and fill in
-    └── storage/app/resumes/     applicant CVs (never web-accessible)
+    └── storage/app/private/resumes/   applicant CVs (never web-accessible)
 ```
 
 Requirements: **PHP 8.3** (8.4 also works), a **MySQL database**, and ideally a plan with **SSH access**. Without SSH, use the one-time `setup.php` installer.
@@ -37,6 +37,7 @@ In `public_html/fortress-app/` copy `.env.example` to `.env` and edit:
 | `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | from step 1.2 (`DB_HOST=localhost`) |
 | `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS` | the mailbox from step 1.4 (or `MAIL_MAILER=log` to disable email for now) |
 | `SETUP_TOKEN` | a long random string, only if you will use `setup.php` (step 4B) |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | optional: uncomment to have the seeder create the first administrator (skip `app:create-admin`) |
 
 Leave `APP_KEY` empty (generated in step 4). Keep `APP_DEBUG=false`.
 
@@ -50,7 +51,7 @@ Leave `APP_KEY` empty (generated in step 4). Keep `APP_DEBUG=false`.
 cd domains/fortress.tt/public_html/fortress-app
 php artisan key:generate --force
 php artisan migrate --force --seed       # creates tables, services, email templates and starter vacancies
-php artisan app:create-admin             # first administrator
+php artisan app:create-admin             # first administrator (or set ADMIN_EMAIL / ADMIN_PASSWORD in .env before --seed)
 php artisan optimize
 rm ../setup.php
 ```

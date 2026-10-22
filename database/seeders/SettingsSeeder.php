@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Setting;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Cache;
 
 class SettingsSeeder extends Seeder
 {
@@ -32,6 +33,6 @@ class SettingsSeeder extends Seeder
         foreach ($defaults as $k => $v) {
             Setting::firstOrCreate(['key' => $k], ['value' => $v]);
         }
-        Setting::setMany([]);
+        Cache::forget('settings.all');
     }
 }

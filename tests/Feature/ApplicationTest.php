@@ -6,6 +6,7 @@ use App\Mail\ApplicationReceived;
 use App\Mail\NewApplicationAlert;
 use App\Models\Application;
 use App\Models\JobPosting;
+use App\Models\Setting;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -72,7 +73,7 @@ class ApplicationTest extends TestCase
     public function test_general_application_can_be_disabled(): void
     {
         $this->get(route('careers.general'))->assertOk();
-        \App\Models\Setting::set('careers.general_applications', '0');
+        Setting::set('careers.general_applications', '0');
         $this->get(route('careers.general'))->assertNotFound();
     }
 }

@@ -37,6 +37,7 @@ class ContactController extends Controller
             }
         } catch (\Throwable $e) {
             report($e);
+            $enquiry->update(['notes' => '[System] Alert email failed: '.$e->getMessage()]);
         }
 
         return redirect()->route('contact')->with('status', 'Thank you, '.$enquiry->name.'. Your request has been received – a Fortress representative will contact you within one business day.');
