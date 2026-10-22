@@ -1,5 +1,5 @@
 // Captures full-page screenshots of every screen (desktop + phone) for the client proposal.
-// Usage: node scripts/proposal/capture.mjs  (env: BASE_URL, ADMIN_EMAIL/ADMIN_PASSWORD, APPLICANT_EMAIL/APPLICANT_PASSWORD, APPLICATION_REF, APPLICATION_ID)
+// Slices follow the page's own sections so a screenshot never breaks mid-block. Usage: node scripts/proposal/capture.mjs  (env: BASE_URL, ADMIN_EMAIL/ADMIN_PASSWORD, APPLICANT_EMAIL/APPLICANT_PASSWORD, APPLICATION_REF, APPLICATION_ID)
 import puppeteer from 'puppeteer-core';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -46,15 +46,91 @@ async function settle() {
   await new Promise(r => setTimeout(r, 500));
 }
 
+/**
+ * Measure natural content blocks (header, each section, footer). Blocks taller than the
+ * page budget are replaced by their children, recursively, so slices follow real section
+ * boundaries instead of cutting wherever the pixel budget runs out.
+ */
+async function measureBlocks(maxH) {
+  return page.evaluate((maxH) => {
+    const rect = (el) => { const r = el.getBoundingClientRect(); return { top: Math.round(r.top + window.scrollY), bottom: Math.round(r.bottom + window.scrollY) }; };
+    const visible = (el) => { const cs = getComputedStyle(el); const r = el.getBoundingClientRect(); return cs.display !== 'none' && cs.visibility !== 'hidden' && r.height > 24 && cs.position !== 'fixed'; };
+    const skip = (el) => el.matches('script, style, template, [x-cloak], [aria-hidden="true"]:not(section)');
+    const explode = (el) => {
+      const r = rect(el);
+      if (r.bottom - r.top <= maxH) return [r];
+      const kids = [...el.children].filter(k => !skip(k) && visible(k));
+      if (kids.length === 0) return [r];
+      if (kids.length === 1) return explode(kids[0]); // wrapper div – look inside it
+      return kids.flatMap(explode);
+    };
+    // Admin layout: the content column is <main>; public layout: body-level header/main/footer.
+    const adminMain = document.querySelector('body > div.flex > div.flex > main');
+    const roots = adminMain
+      ? [...adminMain.children].map(el => ({ el, trailing: false }))
+      : [...document.body.children].filter(el => ['HEADER', 'MAIN', 'FOOTER', 'DIV', 'SECTION'].includes(el.tagName) && !skip(el) && visible(el))
+          .flatMap(el => el.tagName === 'MAIN' ? [...el.children].map(k => ({ el: k, trailing: false })) : [{ el, trailing: el.tagName === 'FOOTER' || (el.tagName === 'SECTION' && el.previousElementSibling?.tagName === 'MAIN') }]);
+    const blocks = roots.filter(r => visible(r.el)).flatMap(r => explode(r.el).map(b => ({ ...b, trailing: r.trailing }))).filter(b => b.bottom > b.top).sort((a, b) => a.top - b.top);
+    // merge overlaps / fill gaps so nothing is lost between blocks
+    const merged = [];
+    for (const b of blocks) {
+      const last = merged[merged.length - 1];
+      if (last && b.top < last.bottom - 2) { last.bottom = Math.max(last.bottom, b.bottom); last.trailing = last.trailing && b.trailing; } else merged.push({ ...b }); // merge true overlaps only
+    }
+    const docH = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+    if (merged.length) { merged[0].top = 0; merged[merged.length - 1].bottom = Math.max(merged[merged.length - 1].bottom, docH); for (let i = 1; i < merged.length; i++) merged[i].top = merged[i - 1].bottom; }
+    return { blocks: merged, docH, docW: document.documentElement.clientWidth };
+  }, maxH);
+}
+
+/** Greedily pack consecutive blocks into page-sized groups; a lone oversize block is hard-cut as a last resort. */
+function packBlocks(blocks, maxH, docH) {
+  const groups = [];
+  let cur = null;
+  for (const b of blocks) {
+    const h = b.bottom - b.top;
+    if (cur && b.bottom - cur.top <= maxH) { cur.bottom = b.bottom; continue; }
+    if (cur) groups.push(cur);
+    if (h > maxH) {
+      for (let y = b.top; y < b.bottom; y += maxH) groups.push({ top: y, bottom: Math.min(y + maxH, b.bottom) });
+      cur = null;
+    } else cur = { top: b.top, bottom: b.bottom };
+  }
+  if (cur) groups.push(cur);
+  // swallow a tiny trailing sliver (e.g. a thin footer strip) into the previous group when it fits
+  if (groups.length > 1) {
+    const last = groups[groups.length - 1], prev = groups[groups.length - 2];
+    if (last.bottom - last.top < maxH * 0.15 && last.bottom - prev.top <= maxH * 1.05) { prev.bottom = last.bottom; groups.pop(); }
+  }
+  groups[groups.length - 1].bottom = Math.min(groups[groups.length - 1].bottom, docH);
+  return groups;
+}
+
+const RATIO = 1.08; // slice height ÷ width that fits a letter page beneath the heading and bullets
+
 async function shoot(name, url, { width = 1440, height = 900, fullPage = true, mobile = false } = {}) {
   await page.setViewport({ width, height, deviceScaleFactor: mobile ? 2 : 1.25, isMobile: mobile, hasTouch: mobile });
   await page.goto(BASE + url, { waitUntil: 'networkidle0' });
   await settle();
-  const file = path.join(OUT, `${name}.jpg`);
-  await page.screenshot({ path: file, type: 'jpeg', quality: 82, fullPage, captureBeyondViewport: true });
-  const dims = await page.evaluate(() => ({ w: document.documentElement.clientWidth, h: document.documentElement.scrollHeight }));
-  console.log(`✓ ${name} ${dims.w}x${dims.h}`);
-  return { name, url, file, ...dims };
+  const files = [];
+  if (!fullPage) {
+    const file = path.join(OUT, `${name}.jpg`);
+    await page.screenshot({ path: file, type: 'jpeg', quality: 82 });
+    files.push(file);
+    console.log(`✓ ${name} viewport`);
+    return { name, url, chunks: files.map(f => path.resolve(f)), mobile };
+  }
+  const maxH = Math.round(width * RATIO);
+  let { blocks, docH } = await measureBlocks(maxH);
+  if (name !== 'home') { blocks = blocks.filter(b => !b.trailing); docH = blocks[blocks.length - 1].bottom; } // CTA band + footer are shown once (home)
+  const groups = packBlocks(blocks, maxH, docH);
+  for (const [i, g] of groups.entries()) {
+    const file = path.join(OUT, groups.length > 1 ? `${name}-${i}.jpg` : `${name}.jpg`);
+    await page.screenshot({ path: file, type: 'jpeg', quality: 82, captureBeyondViewport: true, clip: { x: 0, y: g.top, width, height: g.bottom - g.top } });
+    files.push(file);
+  }
+  console.log(`✓ ${name} ${width}x${docH} → ${groups.length} slice(s): ${groups.map(g => g.bottom - g.top).join(', ')}`);
+  return { name, url, chunks: files.map(f => path.resolve(f)), w: width, h: docH };
 }
 
 async function login(url, email, password) {
@@ -64,13 +140,13 @@ async function login(url, email, password) {
   await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle0' }), page.click('button[type=submit], form button')]);
 }
 
-const manifest = { desktop: [], mobile: [] };
-for (const [n, u] of PUBLIC) manifest.desktop.push(await shoot(n, u));
+const shots = [];
+for (const [n, u] of PUBLIC) shots.push(await shoot(n, u));
 await login('/portal/login', APPLICANT.email, APPLICANT.password);
-for (const [n, u] of PORTAL) manifest.desktop.push(await shoot(n, u));
+for (const [n, u] of PORTAL) shots.push(await shoot(n, u));
 await login('/login', ADMIN.email, ADMIN.password);
-for (const [n, u] of ADMIN_PAGES) manifest.desktop.push(await shoot(n, u, { fullPage: !u.endsWith('/pipeline') }));
-for (const [n, u] of MOBILE) manifest.mobile.push(await shoot(n, u, { width: 390, height: 844, mobile: true, fullPage: false }));
-fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify(manifest, null, 2));
+for (const [n, u] of ADMIN_PAGES) shots.push(await shoot(n, u, { fullPage: !u.endsWith('/pipeline') }));
+for (const [n, u] of MOBILE) shots.push(await shoot(n, u, { width: 390, height: 844, mobile: true, fullPage: false }));
+fs.writeFileSync(path.join(OUT, 'chunks.json'), JSON.stringify(Object.fromEntries(shots.map(s => [s.name, s])), null, 1));
 await browser.close();
 console.log('done');

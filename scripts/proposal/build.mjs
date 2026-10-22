@@ -1,5 +1,5 @@
 // Builds the client proposal (letter-size PDF) from the captured screenshots.
-// Usage: node scripts/proposal/capture.mjs && python3 -I scripts/proposal/split.py && node scripts/proposal/build.mjs
+// Usage: npm run proposal
 import puppeteer from 'puppeteer-core';
 import fs from 'node:fs';
 import path from 'node:path';
