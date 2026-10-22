@@ -15,6 +15,73 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
 const LOGO = `<svg viewBox="0 0 48 56" width="42" height="49" aria-hidden="true"><path d="M24 2 44 9v17c0 13-8.5 22.5-20 28C12.5 48.5 4 39 4 26V9z" fill="#1f6fe5"/><path d="M24 7 39 12.5V26c0 10.5-6.6 18.3-15 23C15.6 44.3 9 36.5 9 26V12.5z" fill="#0a1a33"/><path d="m24 14 2.6 5.6 6.1.7-4.5 4.2 1.2 6L24 27.5l-5.4 3 1.2-6-4.5-4.2 6.1-.7z" fill="#fff"/><text x="24" y="43" text-anchor="middle" font-family="Helvetica, Arial" font-weight="800" font-size="11" fill="#fff">FSS</text></svg>`;
 
+
+/** Hand-written captions per slice (key = screen name, index = slice number). Detected section headings are appended automatically. */
+const CAPTIONS = {
+  home: [
+    'Hero: looping control-room video behind the kinetic headline, live monitoring card with the animated radar, click-to-call and vehicle tracking, and the four headline statistics.',
+    'Credentials marquee and the featured services grid – protection officers, cash in transit, VIP protection and electronic security – with the remaining services as quick links.',
+    '"Why Fortress": the in-house training story with team photography, the three service commitments and animated counters for years in service, training levels and days monitored.',
+    'Industries served as photo tiles (industrial, banking, corporate, events) followed by the live vacancies block that pulls open roles straight from the recruitment system.',
+    'Site-wide call-to-action band and footer with services, company links, both offices and social profiles.',
+  ],
+  about: [
+    'About hero with the company philosophy, followed by the mission and vision statements.',
+    'Company timeline from the 2005 registration as Personnel Protection Services to today\'s island-wide coverage, with the industrial-team photograph.',
+    'Client commitments – prevent losses, protect life, property and information, service excellence – alongside the consultation photograph.',
+    'Certifications (IFPO, STOW, Ministry of National Security) and the St. Augustine and Marabella offices with map links.',
+  ],
+  services: [
+    'Services hero and the first row of service cards; every card carries a licensed photograph and a one-line summary.',
+    'Remaining services: monitoring, GPS tracking, courier, investigations, event security and valet.',
+    'The three-step engagement process: site survey, written proposal within 48 hours, deployment.',
+  ],
+  'service-cit': ['A service detail page (Cash in Transit): hero photograph, description, what is included, who it is for, related services and a quote call-to-action that pre-selects the service.'],
+  training: [
+    'Training hero with the first-aid class photograph and three photo tiles for K9 handling, executive protection and cash in transit.',
+    'The training ladder as a timeline: aptitude assessment, Level 1 and Level 2 with their topics.',
+    'Response Officer and Level 3 Cash in Transit programmes, followed by the call to view vacancies.',
+  ],
+  careers: [
+    'Careers hero with the photo collage and the headline benefits strip.',
+    'Current vacancies with search and filters by department and employment type; each card shows location, openings and urgency.',
+    'Full benefits list and minimum requirements taken from the existing careers page, then the five-step hiring process.',
+  ],
+  job: [
+    'Job posting hero: role, location, openings, closing date and the Apply call-to-action.',
+    'Role details – summary, key responsibilities, minimum requirements, benefits – with the "before you apply" checklist and other vacancies in the sidebar.',
+  ],
+  apply: [
+    'Online application form, part 1 and 2: personal details, driver\'s permit class, experience, education, and tick boxes for police certificate, precept and firearm licence.',
+    'Part 3: CV upload, cover note, how the candidate heard about Fortress, and the consent statement linked to the privacy policy.',
+  ],
+  contact: ['Quote request form with service selector beside both office cards, email addresses and the optional WhatsApp button.'],
+  'portal-login': ['Applicant sign-in, separate from staff login, with password reset and a link to register.'],
+  'portal-register': ['Applicant registration; existing applications submitted with the same email are linked automatically.'],
+  'admin-login': ['Staff sign-in for recruiters and administrators.'],
+  'portal-dashboard': ['Applicant dashboard: applications with plain-language status, upcoming interview card, CV status, latest notifications and suggested roles.'],
+  'portal-application': ['Application tracker: four-step progress bar, interview details or booking, the update timeline, position details and the CV used.'],
+  'portal-notifications': ['Notification inbox mirroring every email the candidate receives.'],
+  'portal-profile': ['CV upload, replace, download or removal, and profile details with password change.'],
+  'admin-dashboard': [
+    'Dashboard headline cards: new applicants, pipeline size, week-over-week applications, hires this month and live vacancies.',
+    '14-day application chart, pipeline breakdown, recent applicants, upcoming interviews, jobs ranked by applicants and the latest quote enquiries.',
+  ],
+  'admin-pipeline': ['Drag-and-drop hiring pipeline; each card shows area, permit class, police certificate, precept and rating.'],
+  'admin-applicants': [
+    'Applicant list with stage tabs, search and filters (job, recruiter, permit, police certificate, precept, rating) and CSV export.',
+    'Continuation of the applicant list showing profile summaries, stage badges, ratings and recruiter assignment.',
+  ],
+  'admin-applicant': ['Applicant profile: qualifications grid, cover note and CV, templated email composer, notes and activity timeline, the Manage panel, decision buttons and portal status.'],
+  'admin-jobs': ['Job postings with status filters, applicant counts, new-applicant badges and the publish, pause, close and duplicate actions.'],
+  'admin-job-edit': ['Job editor: title, department, location, type, summary, description, lists for responsibilities, requirements and benefits, plus status, dates and flags.'],
+  'admin-interviews': ['Interviews: scheduled interviews, open self-booking slots with bookings, the slot generator and applicants still waiting for a time.'],
+  'admin-enquiries': ['Quote-enquiry CRM with status tabs and search.'],
+  'admin-templates': ['Email templates with the placeholders each one can use and the stage it moves the applicant to.'],
+  'admin-settings': ['Site settings: business details, notification addresses, careers page options, social links and the home-page announcement.'],
+  'admin-users': ['Staff users with roles, assigned applicants, last sign-in and active state.'],
+};
+
 /** Screen definitions: section, key, title, bullets. */
 const SECTIONS = [
   { id: 'public', eyebrow: 'Part 1', title: 'The public website', intro: 'A modern, mobile-first replacement for fortress.tt. Every page is built from the content on the current site and your Facebook page, re-written for clarity and search engines, with licensed photography and a looping control-room video in the hero.', screens: [
@@ -59,6 +126,14 @@ const FEATURES = [
   ['Platform', ['Laravel 13 on PHP 8.3', 'Runs on Hostinger shared hosting (no extra servers)', 'Private CV storage outside the web root', 'Role-based staff access', 'HTTPS enforced, forms rate-limited', '53 automated tests']],
 ];
 
+function caption(key, i, c) {
+  const text = CAPTIONS[key]?.[i];
+  const heads = (c.labels?.[i] ?? []).filter(Boolean).slice(0, 5);
+  if (!text && !heads.length) return '';
+  const n = c.chunks.length > 1 ? `Slice ${i + 1} of ${c.chunks.length} · ` : '';
+  return `<figcaption class="cap"><b>${esc(n)}${text ? esc(text) : ''}</b>${heads.length ? `<span class="heads">Sections shown: ${heads.map(esc).join(' · ')}</span>` : ''}</figcaption>`;
+}
+
 function screenPages(sec, [key, title, bullets]) {
   const c = chunks[key];
   if (!c) return `<section class="page"><h2>${esc(title)}</h2><p class="muted">Screenshot missing: ${key}</p></section>`;
@@ -69,7 +144,7 @@ function screenPages(sec, [key, title, bullets]) {
         <p class="url">${esc(c.url)}</p>
       </header>
       ${i === 0 ? `<ul class="bullets">${bullets.map(b => `<li>${esc(b)}</li>`).join('')}</ul>` : ''}
-      <figure class="${i === 0 && bullets.length > 3 ? 'short' : ''}"><img src="${img(file)}" alt="${esc(title)}"></figure>
+      <figure class="${i === 0 && bullets.length > 3 ? 'short' : ''}"><img src="${img(file)}" alt="${esc(title)}">${caption(key, i, c)}</figure>
     </section>`).join('');
 }
 
@@ -110,10 +185,12 @@ const html = `<!doctype html><html><head><meta charset="utf-8"><title>Fortress S
   .shot-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; border-bottom: 2px solid #0a1a33; padding-bottom: 6px; margin-bottom: 8px; }
   .shot-head h2 { font-size: 20pt; } .url { font-family: Menlo, Consolas, monospace; font-size: 8.5pt; color: #6b7a90; margin: 0; white-space: nowrap; }
   .bullets { margin: 0 0 8px; padding-left: 16px; font-size: 9.5pt; } .bullets li { margin: 1px 0; }
-  figure { margin: 0; flex: 1; display: flex; align-items: flex-start; justify-content: center; min-height: 0; }
-  figure img { width: 100%; max-height: 8.5in; object-fit: contain; object-position: top; border: 1px solid #dde4ee; border-radius: 6px; }
-  figure.short img { max-height: 7.7in; }
+  figure { margin: 0; display: block; }
+  figure img { display: block; width: 100%; max-height: 7.9in; object-fit: contain; object-position: top; border: 1px solid #dde4ee; border-radius: 6px; }
+  figure.short img { max-height: 7.1in; }
   .phones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 10px; } .phones figure { display: block; } .phones img { width: 100%; max-height: 7.6in; object-fit: cover; object-position: top; border-radius: 18px; border: 6px solid #0a1a33; } .phones figcaption { text-align: center; font-size: 9pt; color: #6b7a90; margin-top: 6px; }
+  .cap { margin: 6px 0 0; font-size: 8.8pt; line-height: 1.35; color: #334155; border-left: 3px solid #1f6fe5; padding-left: 8px; }
+  .cap b { font-weight: 600; color: #0a1a33; } .cap .heads { display: block; margin-top: 2px; font-size: 7.8pt; color: #6b7a90; }
   .next li { margin: 4px 0; }
   footer.foot { margin-top: auto; padding-top: 8px; font-size: 8pt; color: #94a3b8; display: flex; justify-content: space-between; }
 </style></head><body>

@@ -56,11 +56,17 @@ async function measureBlocks(maxH) {
     const rect = (el) => { const r = el.getBoundingClientRect(); return { top: Math.round(r.top + window.scrollY), bottom: Math.round(r.bottom + window.scrollY) }; };
     const visible = (el) => { const cs = getComputedStyle(el); const r = el.getBoundingClientRect(); return cs.display !== 'none' && cs.visibility !== 'hidden' && r.height > 24 && cs.position !== 'fixed'; };
     const skip = (el) => el.matches('script, style, template, [x-cloak], [aria-hidden="true"]:not(section)');
+    const label = (el) => {
+      const hs = [...el.querySelectorAll('h1, h2, h3')].filter(h => visible(h) && h.closest('nav, footer, [aria-hidden="true"]') === null);
+      const seen = new Set();
+      const text = (h) => { const c = h.cloneNode(true); c.querySelectorAll('.kinetic > span:not(.is-active), [aria-hidden="true"], template').forEach(e => e.remove()); return c.textContent.replace(/\s+/g, ' ').trim(); };
+      return hs.map(text).filter(t => t && !seen.has(t.toLowerCase()) && seen.add(t.toLowerCase())).slice(0, 4);
+    };
     const explode = (el) => {
-      const r = rect(el);
+      const r = { ...rect(el), labels: label(el) };
       if (r.bottom - r.top <= maxH) return [r];
       const kids = [...el.children].filter(k => !skip(k) && visible(k));
-      if (kids.length === 0) return [r];
+      if (kids.length === 0) return [{ top: r.top, bottom: r.bottom, labels: r.labels }];
       if (kids.length === 1) return explode(kids[0]); // wrapper div – look inside it
       return kids.flatMap(explode);
     };
@@ -75,7 +81,7 @@ async function measureBlocks(maxH) {
     const merged = [];
     for (const b of blocks) {
       const last = merged[merged.length - 1];
-      if (last && b.top < last.bottom - 2) { last.bottom = Math.max(last.bottom, b.bottom); last.trailing = last.trailing && b.trailing; } else merged.push({ ...b }); // merge true overlaps only
+      if (last && b.top < last.bottom - 2) { last.bottom = Math.max(last.bottom, b.bottom); last.trailing = last.trailing && b.trailing; last.labels = [...new Set([...last.labels, ...b.labels])]; } else merged.push({ ...b, labels: [...b.labels] }); // merge true overlaps only
     }
     const docH = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
     if (merged.length) { merged[0].top = 0; merged[merged.length - 1].bottom = Math.max(merged[merged.length - 1].bottom, docH); for (let i = 1; i < merged.length; i++) merged[i].top = merged[i - 1].bottom; }
@@ -89,18 +95,18 @@ function packBlocks(blocks, maxH, docH) {
   let cur = null;
   for (const b of blocks) {
     const h = b.bottom - b.top;
-    if (cur && b.bottom - cur.top <= maxH) { cur.bottom = b.bottom; continue; }
+    if (cur && b.bottom - cur.top <= maxH) { cur.bottom = b.bottom; cur.labels = [...new Set([...cur.labels, ...(b.labels ?? [])])]; continue; }
     if (cur) groups.push(cur);
     if (h > maxH) {
-      for (let y = b.top; y < b.bottom; y += maxH) groups.push({ top: y, bottom: Math.min(y + maxH, b.bottom) });
+      for (let y = b.top; y < b.bottom; y += maxH) groups.push({ top: y, bottom: Math.min(y + maxH, b.bottom), labels: b.labels ?? [] });
       cur = null;
-    } else cur = { top: b.top, bottom: b.bottom };
+    } else cur = { top: b.top, bottom: b.bottom, labels: [...(b.labels ?? [])] };
   }
   if (cur) groups.push(cur);
   // swallow a tiny trailing sliver (e.g. a thin footer strip) into the previous group when it fits
   if (groups.length > 1) {
     const last = groups[groups.length - 1], prev = groups[groups.length - 2];
-    if (last.bottom - last.top < maxH * 0.15 && last.bottom - prev.top <= maxH * 1.05) { prev.bottom = last.bottom; groups.pop(); }
+    if (last.bottom - last.top < maxH * 0.15 && last.bottom - prev.top <= maxH * 1.05) { prev.bottom = last.bottom; prev.labels = [...new Set([...prev.labels, ...last.labels])]; groups.pop(); }
   }
   groups[groups.length - 1].bottom = Math.min(groups[groups.length - 1].bottom, docH);
   return groups;
@@ -112,13 +118,13 @@ async function shoot(name, url, { width = 1440, height = 900, fullPage = true, m
   await page.setViewport({ width, height, deviceScaleFactor: mobile ? 2 : 1.25, isMobile: mobile, hasTouch: mobile });
   await page.goto(BASE + url, { waitUntil: 'networkidle0' });
   await settle();
-  const files = [];
+  const files = []; const labels = [];
   if (!fullPage) {
     const file = path.join(OUT, `${name}.jpg`);
     await page.screenshot({ path: file, type: 'jpeg', quality: 82 });
     files.push(file);
     console.log(`✓ ${name} viewport`);
-    return { name, url, chunks: files.map(f => path.resolve(f)), mobile };
+    return { name, url, chunks: files.map(f => path.resolve(f)), labels: [[]], mobile };
   }
   const maxH = Math.round(width * RATIO);
   let { blocks, docH } = await measureBlocks(maxH);
@@ -127,10 +133,10 @@ async function shoot(name, url, { width = 1440, height = 900, fullPage = true, m
   for (const [i, g] of groups.entries()) {
     const file = path.join(OUT, groups.length > 1 ? `${name}-${i}.jpg` : `${name}.jpg`);
     await page.screenshot({ path: file, type: 'jpeg', quality: 82, captureBeyondViewport: true, clip: { x: 0, y: g.top, width, height: g.bottom - g.top } });
-    files.push(file);
+    files.push(file); labels.push(g.labels ?? []);
   }
-  console.log(`✓ ${name} ${width}x${docH} → ${groups.length} slice(s): ${groups.map(g => g.bottom - g.top).join(', ')}`);
-  return { name, url, chunks: files.map(f => path.resolve(f)), w: width, h: docH };
+  console.log(`✓ ${name} → ${groups.length} slice(s): ${groups.map(g => (g.labels ?? []).join(' | ') || '(no heading)').join('  ·  ')}`);
+  return { name, url, chunks: files.map(f => path.resolve(f)), labels, w: width, h: docH };
 }
 
 async function login(url, email, password) {
