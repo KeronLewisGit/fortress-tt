@@ -6,5 +6,5 @@
         <div><label class="label" for="set_status">After sending, move applicant to</label><select id="set_status" name="set_status" class="field"><option value="">Keep current stage</option>@foreach(\App\Models\Application::STAGES as $k => $v)<option value="{{ $k }}" @selected(old('set_status', $template->set_status) === $k)>{{ $v }}</option>@endforeach</select></div>
         <div class="flex items-center gap-2"><button class="admin-btn-primary">Save</button><a href="{{ route('admin.templates.index') }}" class="admin-btn-secondary">Cancel</a></div>
     </form>
-    @if($template->exists)<div class="mx-auto mt-4 max-w-3xl text-right"><x-admin-delete :action="route('admin.templates.destroy', $template)" label="Delete template" /></div>@endif
+    @if($template->exists)<div class="mx-auto mt-6 max-w-3xl text-right"><x-admin-delete :action="route('admin.templates.destroy', $template)" label="Delete template" /></div>@endif
 </x-layouts.admin>

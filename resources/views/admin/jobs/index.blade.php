@@ -27,5 +27,5 @@
         @empty<tr><td colspan="7" class="py-12 text-center text-steel-500">No job postings yet. <a href="{{ route('admin.jobs.create') }}" class="font-semibold text-blue-500">Post your first job</a>.</td></tr>@endforelse
         </tbody></table>
     </div>
-    <div class="mt-4">{{ $jobs->links() }}</div>
+    <div class="mt-5">{{ $jobs->links() }}</div>
 </x-layouts.admin>

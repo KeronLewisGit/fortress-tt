@@ -71,7 +71,7 @@
     .nav-link { @apply font-display text-[15px] font-bold uppercase tracking-wide text-steel-700 transition hover:text-blue-500 focus:outline-none focus-visible:text-blue-500; }
     .nav-link.active { @apply text-blue-500; }
 
-    .field { @apply block w-full rounded-md border border-steel-300 bg-white px-3.5 py-2.5 text-steel-900 shadow-sm placeholder:text-steel-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/25; }
+    .field { @apply block w-full min-w-0 rounded-md border border-steel-300 bg-white px-3.5 py-2.5 text-steel-900 shadow-sm placeholder:text-steel-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/25; }
     .label { @apply mb-1.5 block text-sm font-semibold text-steel-700; }
     .help { @apply mt-1 text-xs text-steel-500; }
     .error { @apply mt-1 text-xs font-medium text-red-600; }

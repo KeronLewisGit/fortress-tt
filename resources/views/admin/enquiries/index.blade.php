@@ -8,5 +8,5 @@
         @forelse($enquiries as $e)<tr class="{{ $e->status === 'new' ? 'bg-amber-400/5' : '' }}"><td><a href="{{ route('admin.enquiries.show', $e) }}" class="font-semibold text-navy-900 hover:text-blue-500">{{ $e->name }}</a><p class="text-xs text-steel-500">{{ $e->company }}{{ $e->company && $e->phone ? ' · ' : '' }}{{ $e->phone }}</p></td><td class="text-steel-600">{{ $e->service ?: '—' }}<br><span class="text-xs text-steel-500">{{ $e->location }}</span></td><td class="max-w-md text-steel-600"><p class="line-clamp-2 text-sm">{{ $e->message }}</p></td><td><x-stage-badge :status="$e->status" :label="\App\Models\Enquiry::STATUSES[$e->status]" /></td><td class="whitespace-nowrap text-steel-500">{{ $e->created_at->format('j M, g:i a') }}</td></tr>
         @empty<tr><td colspan="5" class="py-12 text-center text-steel-500">No enquiries yet.</td></tr>@endforelse
     </tbody></table></div>
-    <div class="mt-4">{{ $enquiries->links() }}</div>
+    <div class="mt-5">{{ $enquiries->links() }}</div>
 </x-layouts.admin>

@@ -46,10 +46,10 @@
     </aside>
     <div x-show="nav" x-cloak class="fixed inset-0 z-30 bg-black/40 lg:hidden" @click="nav = false"></div>
     <div class="flex min-w-0 flex-1 flex-col">
-        <header class="sticky top-0 z-20 flex h-16 items-center gap-4 border-b border-steel-200 bg-white/90 px-4 backdrop-blur sm:px-6">
+        <header class="sticky top-0 z-20 flex min-h-16 flex-wrap items-center gap-x-4 gap-y-2 border-b border-steel-200 bg-white/90 px-4 py-2 backdrop-blur sm:px-6">
             <button class="rounded-lg p-2 hover:bg-steel-100 lg:hidden" @click="nav = true" aria-label="Menu"><x-icon name="menu" class="h-5 w-5" /></button>
-            <h1 class="truncate font-display text-xl font-bold uppercase tracking-wide text-navy-900">{{ $title }}</h1>
-            <div class="ml-auto flex min-w-0 items-center gap-2 overflow-x-auto">{{ $actions ?? '' }}@unless(request()->routeIs('admin.jobs.create'))<a href="{{ route('admin.jobs.create') }}" class="{{ isset($actions) && trim($actions) !== '' ? 'admin-btn-secondary hidden md:inline-flex' : 'admin-btn-blue' }} whitespace-nowrap">+ Post a job</a>@endunless</div>
+            <h1 class="min-w-0 flex-1 basis-40 truncate font-display text-xl font-bold uppercase tracking-wide text-navy-900">{{ $title }}</h1>
+            <div class="ml-auto flex max-w-full items-center gap-2 overflow-x-auto">{{ $actions ?? '' }}@unless(request()->routeIs('admin.jobs.create'))<a href="{{ route('admin.jobs.create') }}" class="{{ isset($actions) && trim($actions) !== '' ? 'admin-btn-secondary hidden md:inline-flex' : 'admin-btn-blue' }} whitespace-nowrap">+ Post a job</a>@endunless</div>
         </header>
         <main class="flex-1 p-4 sm:p-6 lg:p-8 {{ $wide ? '' : 'mx-auto w-full max-w-7xl' }}">
             @if(session('status'))<div class="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-800">{{ session('status') }}</div>@endif

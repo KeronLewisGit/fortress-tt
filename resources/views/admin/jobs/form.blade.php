@@ -39,5 +39,5 @@
             <div class="flex flex-wrap items-center gap-2"><button class="admin-btn-primary">{{ $job->exists ? 'Save changes' : 'Create job' }}</button><a href="{{ route('admin.jobs.index') }}" class="admin-btn-secondary">Cancel</a></div>
         </aside>
     </form>
-    @if($job->exists)<div class="mt-8 flex justify-end"><x-admin-delete :action="route('admin.jobs.destroy', $job)" label="Delete job" confirm="Delete this job posting? Applications will be kept as general applications." /></div>@endif
+    @if($job->exists)<div class="mt-6 flex justify-end"><x-admin-delete :action="route('admin.jobs.destroy', $job)" label="Delete job" confirm="Delete this job posting? Applications will be kept as general applications." /></div>@endif
 </x-layouts.admin>

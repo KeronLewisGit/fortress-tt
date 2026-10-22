@@ -14,5 +14,5 @@
         </div>
         <div class="flex gap-2"><button class="admin-btn-primary">Save</button><a href="{{ route('admin.services.index') }}" class="admin-btn-secondary">Cancel</a></div></aside>
     </form>
-    @if($service->exists)<div class="mt-8 flex justify-end"><x-admin-delete :action="route('admin.services.destroy', $service)" label="Delete service" confirm="Delete this service? It will disappear from the website immediately." /></div>@endif
+    @if($service->exists)<div class="mt-6 flex justify-end"><x-admin-delete :action="route('admin.services.destroy', $service)" label="Delete service" confirm="Delete this service? It will disappear from the website immediately." /></div>@endif
 </x-layouts.admin>

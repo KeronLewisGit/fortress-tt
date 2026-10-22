@@ -9,5 +9,5 @@
         <label class="flex items-center gap-2 text-sm"><input type="checkbox" {{ $self ? '' : 'name=is_active' }} value="1" @checked(old('is_active', $user->exists ? $user->is_active : true)) @disabled($self) class="check">Active (can sign in)@if($self) <span class="text-xs text-steel-500">(you cannot change your own role or deactivate yourself)</span>@endif</label>
         <div class="flex items-center gap-2 pt-2"><button class="admin-btn-primary">Save</button><a href="{{ route('admin.users.index') }}" class="admin-btn-secondary">Cancel</a></div>
     </form>
-    @if($user->exists && $user->id !== auth()->id())<div class="mx-auto mt-4 max-w-xl text-right"><x-admin-delete :action="route('admin.users.destroy', $user)" label="Delete user" confirm="Delete this user? Applicants assigned to them will become unassigned." /></div>@endif
+    @if($user->exists && $user->id !== auth()->id())<div class="mx-auto mt-6 max-w-xl text-right"><x-admin-delete :action="route('admin.users.destroy', $user)" label="Delete user" confirm="Delete this user? Applicants assigned to them will become unassigned." /></div>@endif
 </x-layouts.admin>
