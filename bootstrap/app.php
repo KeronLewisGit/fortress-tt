@@ -27,7 +27,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
         );
     })->create();
 
-// Hostinger layout: the app lives in public_html/fortress-app and public_html is the web root.
+// Zip-package layout (see INSTALL-HOSTINGER.md, option B): the app lives in public_html/fortress-app and
+// public_html is the web root. With the Git layout public/ exists and this block does nothing.
 $publicHtml = dirname(__DIR__, 2);
 if (! is_dir($app->basePath('public')) && is_file($publicHtml.'/index.php') && is_dir($publicHtml.'/build')) {
     $app->usePublicPath($publicHtml);

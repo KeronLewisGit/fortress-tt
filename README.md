@@ -28,8 +28,6 @@ Sign in at `/login` with `admin@fortress.test` / `password` (demo seed).
 
 ## Deploy to Hostinger
 
-```bash
-scripts/package-hostinger.sh   # → dist/fortress-hostinger.zip
-```
+**Git (recommended):** connect the repository in hPanel (*Advanced → Git*, root directory `public_html`). The root `.htaccess` forwards requests to `public/`, `composer.lock` is pinned to PHP 8.3 and `public/build` is committed, so a push deploys everything. Run `npm run build` and commit before pushing CSS/JS changes. First-time setup (`.env`, migrations, admin) is in `INSTALL-HOSTINGER.md`.
 
-Follow `INSTALL-HOSTINGER.md` (included in the zip).
+**Zip:** `scripts/package-hostinger.sh` → `dist/fortress-hostinger.zip`, then follow `INSTALL-HOSTINGER.md`.

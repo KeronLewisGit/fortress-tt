@@ -293,7 +293,7 @@ ${sec.screens.map(s => screenPages(sec, s)).join('')}
     <li><b>After launch:</b> monthly check-ins on applicant volumes and content updates; optional additions such as WhatsApp notifications, SMS interview reminders or a client portal for GPS/alarm customers.</li>
   </ol>
   <h2>Questions</h2>
-  <p>Keron Lewis · <a href="mailto:strawz32@gmail.com">strawz32@gmail.com</a></p>
+  <p>Keron Lewis · <a href="mailto:keronlewis@live.com">keronlewis@live.com</a></p>
   <footer class="foot"><span>Fortress Security Services – Website &amp; Recruitment Platform Proposal</span><span>${esc(DATE)}</span></footer>
 </section>
 </body></html>`;

@@ -1,6 +1,8 @@
 # Fortress Security Services – Hostinger installation guide
 
-`fortress-hostinger.zip` is a ready-to-run production build. Nothing needs compiling on the server: PHP dependencies and front-end assets are included.
+Two ways to install: **Option A** deploys the Git repository through hPanel (recommended, auto-deploys on push). **Option B** uploads `fortress-hostinger.zip`, a ready-to-run production build for hosts without Git/SSH.
+
+For the zip layout: Nothing needs compiling on the server: PHP dependencies and front-end assets are included.
 
 ```
 public_html/
@@ -13,6 +15,56 @@ public_html/
 ```
 
 Requirements: **PHP 8.3** (8.4 also works), a **MySQL database**, and ideally a plan with **SSH access**. Without SSH, use the one-time `setup.php` installer.
+
+## Option A – Hostinger Git deployment (recommended)
+
+hPanel → *Websites → Dashboard → Advanced → Git*. Connect the `fortress-tt` repository, branch `master`, **Root directory `public_html`** (Hostinger's default). Hostinger clones the repository into `public_html/` and runs `composer install` on every push (auto-deployment) or when you click **Redeploy**.
+
+The repository is ready for this layout:
+
+- `.htaccess` in the repository root forwards every request to `public/`, so `.env`, `storage/`, `vendor/` and `.git/` are never served.
+- `composer.lock` is resolved for **PHP 8.3** (`config.platform.php` in `composer.json`), which is what Hostinger's builder uses.
+- `public/build/` (compiled CSS/JS) is committed because the server has no Node. Run `npm run build` and commit the result whenever CSS or JS changes.
+
+### First deployment
+
+1. Do steps **1.1–1.4** below (PHP 8.3, database, SSL, mailbox).
+2. Wait for the deployment state to read **Deployed** (*View details* shows the Composer log if it fails).
+3. Connect over SSH (*Advanced → SSH Access*) and create the environment file:
+
+   ```bash
+   cd ~/domains/fortress.tt/public_html
+   cp deploy/env.production.example .env
+   nano .env            # database, mailbox, APP_URL – see section 3
+   ```
+
+4. Initialise:
+
+   ```bash
+   php -v                                   # must be 8.3; otherwise use /opt/alt/php83/usr/bin/php
+   chmod -R 775 storage bootstrap/cache
+   php artisan key:generate --force
+   php artisan migrate --force --seed
+   php artisan app:create-admin
+   php artisan optimize
+   ```
+
+5. Add the cron job (section 5) using `/home/USERNAME/domains/fortress.tt/public_html/artisan`.
+6. Verify (section 6). `https://www.fortress.tt/.env` and `/.git/config` must return 404.
+
+### Every later push
+
+Hostinger redeploys automatically. Then, over SSH:
+
+```bash
+cd ~/domains/fortress.tt/public_html
+php artisan migrate --force    # only when there are new migrations
+php artisan optimize           # refreshes cached config, routes and views
+```
+
+`.env` and `storage/` are not in the repository, so a redeploy leaves them alone, but keep a copy of `.env` and regular MySQL backups (*Files → Backups*).
+
+## Option B – Upload the zip package
 
 ## 1. Prepare hPanel
 
@@ -66,11 +118,13 @@ If `php` is an old version, use the path shown in hPanel, e.g. `/opt/alt/php83/u
 
 ## 5. Cron job (auto-close expired vacancies)
 
-*Advanced → Cron Jobs* → add, every minute (Laravel decides what runs):
+*Advanced → Cron Jobs* → add, every minute (Laravel decides what runs). Git layout:
 
 ```
-/opt/alt/php83/usr/bin/php /home/USERNAME/domains/fortress.tt/public_html/fortress-app/artisan schedule:run >> /dev/null 2>&1
+/opt/alt/php83/usr/bin/php /home/USERNAME/domains/fortress.tt/public_html/artisan schedule:run >> /dev/null 2>&1
 ```
+
+Zip layout: same command with `public_html/fortress-app/artisan`.
 
 ## 6. Verify
 
