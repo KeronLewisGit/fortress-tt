@@ -2,7 +2,7 @@
     <a href="{{ route('portal.dashboard') }}" class="text-sm font-semibold text-blue-500">← All applications</a>
 
     @php $steps = ['sent' => 'Sent', 'review' => 'In review', 'interview' => 'Interview', 'accepted' => 'Decision']; $ps = $application->publicStatus(); $order = array_keys($steps); $idx = $ps === 'rejected' || $ps === 'withdrawn' ? 3 : array_search($ps, $order); @endphp
-    <div class="card mt-4 p-6">
+    <div class="card mt-5 p-6 sm:p-8">
         <div class="flex flex-wrap items-center justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-[0.16em] text-steel-500">Reference {{ $application->reference }}</p><p class="mt-1 text-sm text-steel-600">Applied {{ $application->created_at->format('l j F Y') }} · {{ $application->job?->location ?? 'Trinidad & Tobago' }}</p></div><x-public-status :application="$application" class="!text-sm !px-3 !py-1" /></div>
         <ol class="mt-6 grid grid-cols-4 gap-2">
             @foreach($steps as $k => $label)
@@ -25,8 +25,8 @@
         </p>
     </div>
 
-    <div class="mt-6 grid gap-6 lg:grid-cols-3">
-        <div class="space-y-6 lg:col-span-2">
+    <div class="mt-8 grid gap-8 lg:grid-cols-3">
+        <div class="space-y-8 lg:col-span-2">
             @if($application->interview_at)
                 <div class="rounded-xl bg-navy-900 p-6 text-white"><p class="eyebrow-light">Your interview</p><p class="mt-2 font-display text-3xl font-bold">{{ $application->interview_at->format('l j F Y') }}</p><p class="font-display text-2xl font-bold text-blue-300">{{ $application->interview_at->format('g:i a') }}</p><p class="mt-3 text-sm text-blue-100/85"><x-icon name="map-pin" class="mr-1 inline h-4 w-4" />{{ $application->interview_location ?: 'Head Office – 8 Desaine Street, St. Augustine' }}</p>
                     <div class="mt-5 rounded-lg bg-white/10 p-4 text-sm text-blue-100/85"><p class="font-semibold text-white">Please bring</p><ul class="mt-1 list-disc pl-5"><li>Two forms of national identification</li><li>Police Certificate of Character (within 6 months)</li><li>Driver's permit, precept or firearm licence if you hold one</li><li>Original certificates and a passport-size photo</li></ul></div>

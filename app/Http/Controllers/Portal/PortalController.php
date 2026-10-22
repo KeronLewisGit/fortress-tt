@@ -25,7 +25,7 @@ class PortalController extends Controller
             'upcoming' => $applications->filter(fn ($a) => $a->interview_at && $a->interview_at->isFuture())->sortBy('interview_at'),
             'notifications' => $applicant->notifications()->take(5)->get(),
             'unread' => $applicant->unreadCount(),
-            'jobs' => JobPosting::live()->whereNotIn('id', $applications->pluck('job_posting_id')->filter())->latest('published_at')->take(3)->get(),
+            'jobs' => JobPosting::live()->whereNotIn('id', $applications->pluck('job_posting_id')->filter())->latest('published_at')->take(2)->get(),
         ]);
     }
 
